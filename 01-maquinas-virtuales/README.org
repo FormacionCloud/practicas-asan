@@ -3,21 +3,25 @@
 - [[https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html][Use instance metadata to manage your EC2 instance]]
 
 ** Instrucciones
-Lanza una máquina *Ubuntu Server* con un script ~user-data~ que realice las siguientes acciones:
-- Cree un archivo en la carpeta ~/misdatos/NOMBRE_APELLIDOS.txt~, sustituyendo ~NOMBRE~ y ~APELLIDOS~ por tus correspondientes datos.
-- Instale el servidor ~nginx~ con el comando ~apt-get~. No es necesario incluir los comandos de arranque y habilitación del servicio, dado que Ubuntu automáticamente realizará esas operaciones al instalar el paquete.
-- Cree un fichero ~index.html~ en la ruta ~/var/www/html~, carpeta raíz del servidor web. En el fichero debe almacenarse el siguiente contenido:
-  #+begin_src html
-    <h1>Bienvenido a la práctica de ASAN. Mi nombre es NOMBRE APELLIDO</h1>
-    <h2>El identificador de la máquina es INSTANCIA_ID</h2>
-    <h2>La IP pública de la instancia es PUBLIC_IPV4</h2>
-    <h2>La IP privada de la instancia es PRIVATE_IPV4</h2>
-  #+end_src
-- En el código anterior se debe sustituir:
-  - ~NOMBRE~ y ~APELLIDO~ por tus datos
-  - ~INSTANCIA_ID~ por el ~id~ de la instancia, obtenido a partir de los meta datos.
-  - ~PUBLIC_IPV4~ por la IP pública de la instancia, obtenida a partir de los meta datos.
-  - ~PRIVATE_IPV4~ por la IP privada de la instancia, obtenida a partir de los meta datos.
+- Utiliza el curso *Learner Lab* de AWS Academy para realizar esta práctica.
+- Crea una *VPC que incluya una única subred pública*. La VPC debe ser de *nueva creación* y debe tener un nombre que incluya tu *nombre y apellidos*. Puedes utilizar el asistente o crear los componentes a mano, como prefieras. El objetivo es que las máquinas que se desplieguen en la única subred de la VPC reciban una *IP pública*, reciban un nombre *DNS* y admitan la conexión entrante desde Internet.
+- Lanza una máquina *Ubuntu Server* en la subred pública de la VPC creada.
+- Asocia a la máquina un *grupo de seguridad* que permita el *tráfico entrante* al puerto *80* (HTTP) desde *cualquier IP*. El objetivo es montar un *servidor web* en dicha máquina.
+- Incluye un script ~User-data~ que realice las siguientes acciones:
+  - Cree un archivo en la carpeta ~/misdatos/NOMBRE_APELLIDOS.txt~, sustituyendo ~NOMBRE~ y ~APELLIDOS~ por tus correspondientes datos.
+  - Instale el servidor ~nginx~ con el comando ~apt-get~. No es necesario incluir los comandos de arranque y habilitación del servicio, dado que Ubuntu automáticamente realizará esas operaciones al instalar el paquete.
+  - Cree un fichero ~index.html~ en la ruta ~/var/www/html~, carpeta raíz del servidor web. En el fichero debe almacenarse el siguiente *contenido*:
+    #+begin_src html
+      <h1>Bienvenido a la práctica de ASAN. Mi nombre es NOMBRE APELLIDO</h1>
+      <h2>El identificador de la máquina es INSTANCIA_ID</h2>
+      <h2>La IP pública de la instancia es PUBLIC_IPV4</h2>
+      <h2>La IP privada de la instancia es PRIVATE_IPV4</h2>
+    #+end_src
+  - En el código anterior se debe sustituir:
+    - ~NOMBRE~ y ~APELLIDO~ por tus datos
+    - ~INSTANCIA_ID~ por el ~id~ de la instancia, obtenido a partir de los meta datos.
+    - ~PUBLIC_IPV4~ por la IP pública de la instancia, obtenida a partir de los meta datos.
+    - ~PRIVATE_IPV4~ por la IP privada de la instancia, obtenida a partir de los meta datos.
 
 ** Recomendaciones
 - Tienes un vídeo explicativo donde realizo una tarea similar a la propuesta
@@ -48,3 +52,6 @@ Accede a la URL pública de la máquina creada. Comprueba que se muestra una pá
 
 ** Entrega
 Documenta la realización de la práctica explicando los pasos seguidos. Incluye las *capturas de pantalla* necesarias. Recuerda mostrar tus datos personales (nombre y apellidos) en aquellos apartados donde se indique.
+
+** Limpieza
+Al finalizar, *elimina* la *máquina virtual*. Elimina también la *VPC* creada junto con todos los elementos creados en ella.
