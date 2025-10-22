@@ -28,6 +28,7 @@
 - La máquina debe ser *Ubuntu Server*, no Amazon Linux. Recuerda que la herramienta de instalación de paquetes de Ubuntu es ~apt-get~
 - Para hacer pruebas, arranca una instancia, accede a ella de manera remota y trata de crear un script que cree un fichero con el contenido pedido. Así no tendrás que hacer las pruebas usando directamente el ~User-data~, lanzando una máquina con cada prueba y teniendo que esperar a que se ejecute el script
 - Puedes utilizar la herramienta ~curl~ para descargar los metadatos
+- Puedes almacenar en una variable de entorno el resultado de ejecutar un comando utilizando los acentos graves ~` `~, tal como explico en el vídeo.
 - Para obtener los meta datos recuerda que primero debes obtener el ~TOKEN~ de acceso
 - Puedes utilizar variables de entorno para almacenar el ~TOKEN~ y también para almacenar los metadatos que vayas obteniendo. Utiliza después dichas variables con el comando ~echo~ para mezclar contenido estático junto con los datos guardados en las variables. Por ejemplo:
   #+begin_src bash
