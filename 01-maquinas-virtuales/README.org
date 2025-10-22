@@ -1,0 +1,50 @@
+* Instancias: user-data y metadatos
+** Documentación y recursos adicionales
+- [[https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html][Use instance metadata to manage your EC2 instance]]
+
+** Instrucciones
+Lanza una máquina *Ubuntu Server* con un script ~user-data~ que realice las siguientes acciones:
+- Cree un archivo en la carpeta ~/misdatos/NOMBRE_APELLIDOS.txt~, sustituyendo ~NOMBRE~ y ~APELLIDOS~ por tus correspondientes datos.
+- Instale el servidor ~nginx~ con el comando ~apt-get~. No es necesario incluir los comandos de arranque y habilitación del servicio, dado que Ubuntu automáticamente realizará esas operaciones al instalar el paquete.
+- Cree un fichero ~index.html~ en la ruta ~/var/www/html~, carpeta raíz del servidor web. En el fichero debe almacenarse el siguiente contenido:
+  #+begin_src html
+    <h1>Bienvenido a la práctica de ASAN. Mi nombre es NOMBRE APELLIDO</h1>
+    <h2>El identificador de la máquina es INSTANCIA_ID</h2>
+    <h2>La IP pública de la instancia es PUBLIC_IPV4</h2>
+    <h2>La IP privada de la instancia es PRIVATE_IPV4</h2>
+  #+end_src
+- En el código anterior se debe sustituir:
+  - ~NOMBRE~ y ~APELLIDO~ por tus datos
+  - ~INSTANCIA_ID~ por el ~id~ de la instancia, obtenido a partir de los meta datos.
+  - ~PUBLIC_IPV4~ por la IP pública de la instancia, obtenida a partir de los meta datos.
+  - ~PRIVATE_IPV4~ por la IP privada de la instancia, obtenida a partir de los meta datos.
+
+** Recomendaciones
+- Tienes un vídeo explicativo donde realizo una tarea similar a la propuesta
+- La máquina debe ser *Ubuntu Server*, no Amazon Linux. Recuerda que la herramienta de instalación de paquetes de Ubuntu es ~apt-get~
+- Para hacer pruebas, arranca una instancia, accede a ella de manera remota y trata de crear un script que cree un fichero con el contenido pedido. Así no tendrás que hacer las pruebas usando directamente el ~User-data~, lanzando una máquina con cada prueba y teniendo que esperar a que se ejecute el script
+- Puedes utilizar la herramienta ~curl~ para descargar los metadatos
+- Para obtener los meta datos recuerda que primero debes obtener el ~TOKEN~ de acceso
+- Puedes utilizar variables de entorno para almacenar el ~TOKEN~ y también para almacenar los metadatos que vayas obteniendo. Utiliza después dichas variables con el comando ~echo~ para mezclar contenido estático junto con los datos guardados en las variables. Por ejemplo:
+  #+begin_src bash
+    TEST="03123123"
+    echo "el valor de test es $TEST"
+    # Resultado: el valor de test es 03123123
+  #+end_src
+- Puedes utilizar el comando de redirección de salida, ~>~, que sobreescribe completamente el fichero, o el comando ~>>~, que *añade nuevos datos* al contenido existente del fichero. Así podrás ir añadiendo cada línea del fichero HTML de manera independiente, sin tener que poner todo el contenido en un único comando, facilitando así su creación. Por ejemplo:
+  #+begin_src bash
+    echo ""
+    echo "línea 1" > test1.txt
+    echo "línea 2" >> test1.txt
+    # El fichero "test1.txt" contendrá el siguiente texto:
+    # --
+    # línea 1
+    # línea 2
+    # --
+  #+end_src
+
+** Comprobación del resultado
+Accede a la URL pública de la máquina creada. Comprueba que se muestra una página web con el contenido esperado. Recuerda acceder por ~http~ y no por ~https~.
+
+** Entrega
+Documenta la realización de la práctica explicando los pasos seguidos. Incluye las *capturas de pantalla* necesarias. Recuerda mostrar tus datos personales (nombre y apellidos) en aquellos apartados donde se indique.
