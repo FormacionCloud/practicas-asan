@@ -37,7 +37,6 @@
   #+end_src
 - Puedes utilizar el comando de redirección de salida, ~>~, que sobreescribe completamente el fichero, o el comando ~>>~, que *añade nuevos datos* al contenido existente del fichero. Así podrás ir añadiendo cada línea del fichero HTML de manera independiente, sin tener que poner todo el contenido en un único comando, facilitando así su creación. Por ejemplo:
   #+begin_src bash
-    echo ""
     echo "línea 1" > test1.txt
     echo "línea 2" >> test1.txt
     # El fichero "test1.txt" contendrá el siguiente texto:
