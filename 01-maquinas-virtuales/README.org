@@ -53,5 +53,7 @@ Accede a la URL pública de la máquina creada. Comprueba que se muestra una pá
 ** Entrega
 Documenta la realización de la práctica explicando los pasos seguidos. Incluye las *capturas de pantalla* necesarias. Recuerda mostrar tus datos personales (nombre y apellidos) en aquellos apartados donde se indique.
 
+Incluye también en la memoria el script ~User-data~ que has creado en esta tarea.
+
 ** Limpieza
 Al finalizar, *elimina* la *máquina virtual*. Elimina también la *VPC* creada junto con todos los elementos creados en ella.
