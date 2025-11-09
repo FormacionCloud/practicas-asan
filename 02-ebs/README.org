@@ -30,7 +30,10 @@
     - Punto de montaje: ~/dev/sdd~
 - Asocia los 3 discos a la máquina
 - Crea un sistema de ficheros en cada uno de los 3 discos
-- Monta los 3 discos en 3 puntos de montaje
+- Monta los 3 discos en 3 directorios de montaje distintos:
+  - ~/mnt/disco1~
+  - ~/mnt/disco2~
+  - ~/mnt/disco3~
 - Instala el programa ~fio~ mediante:
   #+begin_src bash
     sudo dnf install fio
