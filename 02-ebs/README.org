@@ -1,0 +1,61 @@
+* Trabajo con discos EBS
+** Documentación y recursos adicionales
+- [[https://docs.aws.amazon.com/ebs/latest/userguide/what-is-ebs.html][Documentación de AWS EBS]]
+- [[https://docs.aws.amazon.com/ebs/latest/userguide/benchmark_procedures.html][Benchmark Amazon EBS volumes]]
+
+** Instrucciones
+- Utiliza el curso *Learner Lab* de AWS Academy para realizar esta práctica.
+
+** Benchmarking
+- Realiza un benchmarking de discos EBS de manera similar a lo explicado en el vídeotutorial
+- Crea una máquina ~t3.micro~ con Amazon Linux 2023 que permita la conexión remota
+- Crea *3 volúmenes* en EBS:
+  - Disco 1
+    - ~gp3~
+    - 100GB
+    - 3000 IOPS
+    - 125 MBps
+    - Punto de montaje: ~/dev/sdb~
+  - Disco 2
+    - ~gp3~
+    - 100GB
+    - 20000 IOPS
+    - 125 MBps
+    - Punto de montaje: ~/dev/sdc~
+  - Disco 3
+    - ~gp3~
+    - 100GB
+    - 20000 IOPS
+    - 500 MBps
+    - Punto de montaje: ~/dev/sdd~
+- Asocia los 3 discos a la máquina
+- Crea un sistema de ficheros en cada uno de los 3 discos
+- Monta los 3 discos en 3 puntos de montaje
+- Instala el programa ~fio~ mediante:
+  #+begin_src bash
+    sudo dnf install fio
+  #+end_src
+- Lanza un benchmark de los 3 discos tomando como base el siguiente comando:
+  #+begin_src bash
+    sudo fio --directory=/mnt/TU_DISCO --name fio_test_file --direct=1 --rw=randread --bs=16k --size=1G --numjobs=16 --time_based --runtime=180 --group_reporting --norandommap 
+  #+end_src
+- *Analiza los resultados* teniendo en cuenta las *IOPS* y el *throughput* alcanzado
+- *Repite el benchmark* de los 3 discos aumentando el tamaño de bloque a *32k* tomando como base el siguiente comando:
+  #+begin_src bash
+    sudo fio --directory=/mnt/TU_DISCO --name fio_test_file --direct=1 --rw=randread --bs=32k --size=1G --numjobs=16 --time_based --runtime=180 --group_reporting --norandommap 
+  #+end_src
+- *Analiza de nuevo los resultados* teniendo en cuenta las *IOPS* y el *throughput* alcanzado
+
+** Snapshots
+- Crea un fichero que incluya tu *nombre y apellidos* en el nombre. Añade un texto genérico al fichero. Guarda dicho fichero en el disco 1 creado en el apartado anterior
+- Realiza un snapshot del disco 1. Comprueba que el snapshot *no está cifrado*
+- Crea un nuevo volumen *cifrado* a partir del snapshot anterior. Utiliza la clave por defecto proporcionada por el servicio EBS
+- Monta el volumen cifrado en la máquina. Utiliza el punto de montaje ~/dev/sde~. Como directorio de montaje, utiliza ~/mnt/TUS_INICIALES~, sustituyendo ~TUS_INICIALES~ por tus iniciales reales
+- *Comprueba que aparece el fichero* que habías creado en el disco original y habías guardado en el snapshot
+- *Realiza un nuevo snapshot* del disco cifrado. Comprueba que el snapshot *se cifra* automáticamente.
+
+** Entrega
+Documenta la realización de la práctica explicando los pasos seguidos. Incluye las *capturas de pantalla* necesarias. Recuerda mostrar tus datos personales (nombre y apellidos, iniciales) en aquellos apartados donde se indique.
+
+** Limpieza
+Al finalizar, *elimina* la *máquina virtual*, los *volúmenes EBS* y los *snapshots* creados.
