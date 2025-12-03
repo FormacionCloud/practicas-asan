@@ -23,6 +23,7 @@ La práctica simula un escenario híbrido donde usuarios remotos acceden a siste
 ** Infraestructura de Red
 - VPC con subredes públicas y privadas
 - Internet Gateway
+- NAT Gateway
 - Tablas de enrutamiento
 - Grupos de seguridad
 
