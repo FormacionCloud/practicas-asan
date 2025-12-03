@@ -15,7 +15,7 @@ La práctica simula un escenario híbrido donde usuarios remotos acceden a siste
 
 #+BEGIN_SRC
 [Cliente On-Premise] ---> [AWS Client VPN] ---> [VPC] ---> [EFS]
-                                                   |
+                                                  |
                                             [Instancias EC2]
 #+END_SRC
 
