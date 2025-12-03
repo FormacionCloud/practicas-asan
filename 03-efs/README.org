@@ -60,7 +60,38 @@ Crea un sistema de archivos EFS con un *punto de montaje* en la *subred privada*
 * 3. Conectividad VPN
 Crea un cliente VPN tal como has aprendido en el módulo de Redes. Para ello, deberás:
 - *Generar certificados* de cliente y servidor. Para ello puedes utilizar https://github.com/OpenVPN/easy-rsa
-- *Importar* los certificados en *AWS Certificate Manager*
+  A continuación se indican los comandos necesarios para ello:
+  #+BEGIN_SRC bash
+    # Instalar easy-rsa
+    git clone https://github.com/OpenVPN/easy-rsa.git
+    cd easy-rsa/easyrsa3
+
+    # Inicializar PKI
+    ./easyrsa init-pki
+
+    # Crear CA
+    ./easyrsa build-ca nopass
+
+    # Crear certificado del servidor
+    ./easyrsa build-server-full servidor.practica.vpn nopass
+
+    # Crear certificado del cliente
+    ./easyrsa build-client-full cliente.practica.vpn nopass
+  #+END_SRC
+- *Importar* los certificados en *AWS Certificate Manager*. Puedes utilizar este código para hacerlo desde la CLI si has generado los certificados con el paso anterior:
+  #+BEGIN_SRC bash
+    # Importar certificado del servidor
+    aws acm import-certificate \
+        --certificate fileb://pki/issued/servidor.practica.vpn.crt \
+        --private-key fileb://pki/private/servidor.practica.vpn.key \
+        --certificate-chain fileb://pki/ca.crt
+
+    # Importar certificado del cliente
+    aws acm import-certificate \
+        --certificate fileb://pki/issued/cliente.practica.vpn.crt \
+        --private-key fileb://pki/private/cliente.practica.vpn.key \
+        --certificate-chain fileb://pki/ca.crt
+  #+END_SRC
 - Crear un *Client VPN Endpoint*
   - CIDR - ~192.168.10.0/24~
   - DNS 1 - ~172.16.2.2~ (es la IP del servidor DNS de la subred privada)
