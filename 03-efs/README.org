@@ -118,4 +118,4 @@ Crea un cliente VPN tal como has aprendido en el módulo de Redes. Para ello, de
 Documenta la realización de la práctica explicando los pasos seguidos. Incluye las *capturas de pantalla* necesarias. Recuerda mostrar tus datos personales (nombre y apellidos, iniciales) en aquellos apartados donde se indique.
 
 ** Limpieza
-Al finalizar, *elimina* la *máquina virtual*, el sistema de ficheros *EFS*, la *asociación de subred* del cliente VPN, el *cliente VPN*, la *VPC* con todos sus recursos y los *certificados*.
+Al finalizar, *elimina* la *máquina virtual*, el sistema de ficheros *EFS*, la *asociación de subred* del cliente VPN, el *cliente VPN*, la *NAT Gateway*, la *IP elástica* asociada a la NAT Gateway, la *VPC* con todos sus recursos y los *certificados*.
