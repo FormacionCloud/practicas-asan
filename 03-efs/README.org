@@ -110,7 +110,7 @@ Crea un cliente VPN tal como has aprendido en el módulo de Redes. Para ello, de
 - *Crea un archivo* con tu *NOMBRE y APELLIDOS* en su interior.
 
 ** Equipo local
-- Descarga la configuración VPN en una máquina Linux local. Puedes utilizar tu equipo o una máquina virtual local
+- Descarga la configuración VPN en una *máquina Linux local*. Puedes utilizar tu equipo o una máquina virtual local
 - Conéctate a la VPN mediante el archivo de configuración
 - *Monta* el sistema de ficheros EFS en una carpeta. Comprueba que *aparece el archivo* creado anteriormente desde la máquina EC2
 
