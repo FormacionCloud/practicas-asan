@@ -1,5 +1,8 @@
 * Acceso a carpetas compartidas desde infraestructura local
+#+begin_quote
+[!IMPORTANT]
 Utilizaremos la *Landing Zone* para realizar esta práctica.
+#+end_quote
 
 Los objetivos de esta práctica son los siguientes:
 - Configurar una VPC con un sistema de archivos EFS
