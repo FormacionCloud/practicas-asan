@@ -71,10 +71,12 @@ Crea un cliente VPN tal como has aprendido en el módulo de Redes. Para ello, de
 
     # Crear CA
     ./easyrsa build-ca nopass
-
+  #+END_SRC
+  #+BEGIN_SRC bash
     # Crear certificado del servidor
     ./easyrsa build-server-full servidor.practica.vpn nopass
-
+  #+END_SRC
+  #+BEGIN_SRC bash
     # Crear certificado del cliente
     ./easyrsa build-client-full cliente.practica.vpn nopass
   #+END_SRC
@@ -85,7 +87,8 @@ Crea un cliente VPN tal como has aprendido en el módulo de Redes. Para ello, de
         --certificate fileb://pki/issued/servidor.practica.vpn.crt \
         --private-key fileb://pki/private/servidor.practica.vpn.key \
         --certificate-chain fileb://pki/ca.crt
-
+  #+END_SRC
+  #+BEGIN_SRC bash
     # Importar certificado del cliente
     aws acm import-certificate \
         --certificate fileb://pki/issued/cliente.practica.vpn.crt \
