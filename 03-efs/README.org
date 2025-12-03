@@ -96,6 +96,7 @@ Crea un cliente VPN tal como has aprendido en el módulo de Redes. Para ello, de
         --certificate-chain fileb://pki/ca.crt
   #+END_SRC
 - Crear un *Client VPN Endpoint*
+  - Utiliza *autenticación mutua* indicando los *certificados de servidor y cliente*
   - CIDR - ~192.168.10.0/24~
   - DNS 1 - ~172.16.2.2~ (es la IP del servidor DNS de la subred privada)
 - Asociar el cliente a la *subred privada* de la VPC creada anteriormente.
