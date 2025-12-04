@@ -96,8 +96,9 @@ Crea un cliente VPN tal como has aprendido en el módulo de Redes. Para ello, de
         --certificate-chain fileb://pki/ca.crt
   #+END_SRC
 - Crear un *Client VPN Endpoint*
-  - Utiliza *autenticación mutua* indicando los *certificados de servidor y cliente*
+  - Configura solo *IPv4* tanto para el tipo de *direcciones* como para el *tráfico*.
   - CIDR - ~192.168.0.0/16~
+  - Utiliza *autenticación mutua* indicando los *certificados de servidor y cliente*
   - DNS 1 - ~172.16.0.2~ (es la IP del servidor DNS de la VPC). También podemos utilizar la IP genérica ~169.254.169.253~, tal como indica la [[https://docs.aws.amazon.com/vpc/latest/userguide/AmazonDNS-concepts.html#AmazonDNS][documentación]].
   - Asociar el *grupo de seguridad* ~SG-clienteVPN~ a la conexión creada
 - Asociar el cliente a la *subred privada* de la VPC creada anteriormente.
