@@ -1,0 +1,44 @@
+* Almacenamiento de parámetros y secretos compartidos
+#+begin_quote
+[!IMPORTANT]
+Utilizaremos la *Landing Zone* para realizar esta práctica.
+#+end_quote
+
+Los objetivos de esta práctica son los siguientes:
+- Utilizar los servicios de almacenamiento de parámetros (Systems Manager Parameter Store)
+- Utilizar los servicios de almacenamiento de secretos (Secrets Manager)
+- Acceder a los secretos y parámetros compartidos desde el código de la aplicación mediante el SDK
+- Rotar secretos de bases de datos automáticamente
+
+* Crear un secreto en Secrets Manager
+
+* Crear un parámetro en Systems Manager Parameter Store
+Crea una parámetro en Systems Manager Parameter Store con las siguientes características:
+- Nombre - ~/practica-secretos/TUS_INICIALES/param1~
+  Asegúrate de cambiar ~TUS_INICIALES~ por tus iniciales reales.
+- Tier - ~Standard~
+- Type - ~String~
+- Data type - ~text~
+- Value - Tu nombre y apellidos completo
+
+[[./imagenes/01-parametro.png]]
+
+* Acceder a secretos y parámetros desde la CLI
+
+* Acceder a secretos y parámetros desde la aplicación (SDK)
+
+* Aplicación real en Beanstalk
+** Variables de entorno
+** Secretos en variables de entorno
+En Beanstalk, se pueden guardar secretos de secrets manager en env variables, pero solo se sincronizan al actualizar el entorno o reiniciar instancias.
+
+1. Cargar secretos a env variables. Rotar secreto. Ver que no cambia. Refrescar entorno y ver que cambia. Todo ello, simplemente mostrando en PHP.
+2. Cargar secretos desde fichero ~.ebextensions~.
+** Secretos desde el SDK
+
+
+* Entrega
+Documenta la realización de la práctica explicando los pasos seguidos. Incluye las *capturas de pantalla* necesarias. Recuerda mostrar tus datos personales (nombre y apellidos, iniciales) en aquellos apartados donde se indique.
+
+* Limpieza
+Al finalizar, *elimina* los recursos creados en la práctica.
