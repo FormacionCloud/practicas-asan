@@ -207,4 +207,9 @@ En un *entorno real*, si el código PHP se está ejecutando en algún nodo de co
 Documenta la realización de la práctica explicando los pasos seguidos. Incluye las *capturas de pantalla* necesarias. Recuerda mostrar tus datos personales (nombre y apellidos, iniciales) en aquellos apartados donde se indique.
 
 * Limpieza
-Al finalizar, *elimina* los recursos creados en la práctica (secretos y parámetros).
+Al finalizar, *elimina* el secreto creado en la práctica.
+
+#+begin_quote
+[!WARNING]
+El parámetro de Systems Manager no tiene gasto asociado. No lo elimines todavía, ya que será utilizado en la práctica de Beanstalk del módulo de Automatización y Despliegue.
+#+end_quote
