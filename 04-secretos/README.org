@@ -37,16 +37,20 @@ Crea una parámetro en Systems Manager Parameter Store con las siguientes caract
 [[./imagenes/01-parametro.png]]
 
 * Acceder a secretos y parámetros desde la CLI
-1. Muestra el parámetro a través de la CLI mediante el comando siguiente:
-   #+begin_src bash
-   aws ssm get-parameter --name /practica-secretos/TUS_INICIALES/param1
-   #+end_src
-2. Muestra el secreto a través de la CLI mediante el comando siguiente:
-   #+begin_src bash
-     aws secretsmanager get-secret-value --secret-id /practica-secretos/TUS_INICIALES/secret1
-   #+end_src
+** Acceso a parámetros de Parameter Store
+Muestra el parámetro a través de la CLI mediante el comando siguiente. Asegúrate de cambiar ~TUS_INICIALES~ por tus iniciales reales.
+#+begin_src bash
+  aws ssm get-parameter --name /practica-secretos/TUS_INICIALES/param1
+#+end_src
+
+** Acceso a secretos de Secrets Manager
+Muestra el secreto a través de la CLI mediante el comando siguiente. Asegúrate de cambiar ~TUS_INICIALES~ por tus iniciales reales.
+#+begin_src bash
+  aws secretsmanager get-secret-value --secret-id /practica-secretos/TUS_INICIALES/secret1
+#+end_src
 
 * Acceder a secretos y parámetros desde la aplicación (SDK)
+
 
 * Aplicación real en Beanstalk
 ** Variables de entorno
