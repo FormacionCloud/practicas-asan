@@ -18,7 +18,7 @@ Crea un secreto en Secrets Manager con las siguientes características:
   - Value - Tu nombre y apellidos completo
 - Encryption Key - Deja el valor por defecto
   [[./imagenes/02-secret-1.png]]
-- Secret name - ~/practica-secretos/TUS_INICIALES/secret1~
+- Secret name - ~/practica-secretos/TUS_INICIALES/secret1~. Asegúrate de cambiar ~TUS_INICIALES~ por tus iniciales reales.
   [[./imagenes/02-secret-2.png]]
 - No actives la rotación automática
   [[./imagenes/02-secret-3.png]]
