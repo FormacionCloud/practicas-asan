@@ -92,7 +92,58 @@ A partir de ahora, puedes hacer referencia a él desde nuestros archivos PHP med
 #+end_src
 
 ** Acceso a parámetros de Parameter Store
-Crea un archivo en PHP
+Crea un fichero PHP en CloudShell con el siguiente código, basado en la [[https://docs.aws.amazon.com/aws-sdk-php/v3/api/api-ssm-2014-11-06.html#getparameter][documentación del SDK de PHP]]:
+
+#+begin_src php
+<?php
+
+// Carga del SDK
+require 'aws.phar';
+
+// Clases para interactuar con el servicio correspondiente
+use Aws\Ssm\SsmClient;
+use Aws\Exception\AwsException;
+
+// Crear el cliente de Systems Manager
+$client = new SsmClient([
+    'region' => 'TU_REGION'
+]);
+
+$parameter_name = '/practica-secretos/TUS_INICIALES/param1';
+
+// Llamada a la API para obtener el parámetro
+try {
+    $result = $client->getParameter([
+        'Name' => $parameter_name,
+        'WithDecryption' => false,
+    ]);
+} catch (AwsException $e) {
+    throw $e;
+}
+
+// El resultado incluye varios campos. Accedemos al que contiene el valor
+$param = $result['Parameter']['Value'];
+
+// El código de la aplicación que tenga que trabajar con el parámetro vendría aquí
+
+// Mostrar el resultado
+print("$param\n");
+#+end_src
+
+Recuerda *sustituir* ~TUS_INICIALES~ por tus iniciales reales y ~TU_REGION~ por la región en la que estés. Comprueba también que el nombre del parámetro es el correcto. Una vez creado el archivo (puedes utilizar el editor ~nano~, por ejemplo), ejecútalo con el intérprete de PHP:
+
+#+begin_src bash
+php fichero_parametro.php
+#+end_src
+
+Comprueba que se muestra el valor del parámetro en la consola.
+
+#+begin_quote
+[!IMPORTANT]
+Recuerda que en este caso estamos accediendo al parámetro a través de CloudShell, donde tenemos los permisos del usuario de la consola (administrador, en este caso).
+
+En un *entorno real*, si el código PHP se está ejecutando en algún nodo de computación (máquina EC2, función Lambda, contenedor), deberíamos utilizar un *rol* asociado a dicho nodo de computación que tuviera *permisos de acceso* al parámetro que queremos obtener.
+#+end_quote
 
 ** Acceso a secretos de Secrets Manager
 Crea un fichero PHP en CloudShell con el siguiente código *basado en el código de ejemplo* que hay disponible en la pestaña /Overview/ del secreto creado, dentro de la sección *Sample code*. En él se ha sustituido la carga del paquete de librería (pensada para utilizar el SDK con el gestor de paquetes ~composer~) por la carga del fichero ~.phar~ descargado anteriormente. También se ha eliminado la referencia al perfil, dado que en CloudShell las credenciales son las del usuario con la sesión iniciada en la consola de AWS (no hay fichero =~/.aws/credentials=).
@@ -114,8 +165,7 @@ use Aws\Exception\AwsException;
 
 // Crear el cliente de Secrets Manager
 $client = new SecretsManagerClient([
-    'version' => '2017-10-17',
-    'region' => 'TU_REGION',
+    'region' => 'TU_REGION'
 ]);
 
 $secret_name = '/practica-secretos/TUS_INICIALES/secret1';
@@ -142,7 +192,7 @@ print("$secret\n");
 Recuerda *sustituir* ~TUS_INICIALES~ por tus iniciales reales y ~TU_REGION~ por la región en la que estés. Comprueba también que el nombre del secreto es el correcto. Una vez creado el archivo (puedes utilizar el editor ~nano~, por ejemplo), ejecútalo con el intérprete de PHP:
 
 #+begin_src bash
-php fichero.php
+php fichero_secretos.php
 #+end_src
 
 Comprueba que se muestra el secreto en la consola.
@@ -151,7 +201,7 @@ Comprueba que se muestra el secreto en la consola.
 [!IMPORTANT]
 Recuerda que en este caso estamos accediendo al secreto a través de CloudShell, donde tenemos los permisos del usuario de la consola (administrador, en este caso).
 
-En un entorno real, si el código PHP se está ejecutando en algún nodo de computación (máquina EC2, función Lambda, contenedor), deberíamos utilizar un *rol* asociado a dicho nodo de computación que tuviera *permisos de acceso* al secreto que queremos obtener.
+En un *entorno real*, si el código PHP se está ejecutando en algún nodo de computación (máquina EC2, función Lambda, contenedor), deberíamos utilizar un *rol* asociado a dicho nodo de computación que tuviera *permisos de acceso* al secreto que queremos obtener.
 #+end_quote
 
 * Aplicación real en Beanstalk
