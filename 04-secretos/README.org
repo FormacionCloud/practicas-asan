@@ -8,7 +8,6 @@ Los objetivos de esta práctica son los siguientes:
 - Utilizar los servicios de almacenamiento de parámetros (Systems Manager Parameter Store)
 - Utilizar los servicios de almacenamiento de secretos (Secrets Manager)
 - Acceder a los secretos y parámetros compartidos desde el código de la aplicación mediante el SDK
-- Rotar secretos de bases de datos automáticamente
 
 * Crear un secreto en Secrets Manager
 Crea un secreto en Secrets Manager con las siguientes características:
