@@ -204,18 +204,8 @@ Recuerda que en este caso estamos accediendo al secreto a través de CloudShell,
 En un *entorno real*, si el código PHP se está ejecutando en algún nodo de computación (máquina EC2, función Lambda, contenedor), deberíamos utilizar un *rol* asociado a dicho nodo de computación que tuviera *permisos de acceso* al secreto que queremos obtener.
 #+end_quote
 
-* Aplicación real en Beanstalk
-** Variables de entorno
-** Secretos en variables de entorno
-En Beanstalk, se pueden guardar secretos de secrets manager en env variables, pero solo se sincronizan al actualizar el entorno o reiniciar instancias.
-
-1. Cargar secretos a env variables. Rotar secreto. Ver que no cambia. Refrescar entorno y ver que cambia. Todo ello, simplemente mostrando en PHP.
-2. Cargar secretos desde fichero ~.ebextensions~.
-** Secretos desde el SDK
-
-
 * Entrega
 Documenta la realización de la práctica explicando los pasos seguidos. Incluye las *capturas de pantalla* necesarias. Recuerda mostrar tus datos personales (nombre y apellidos, iniciales) en aquellos apartados donde se indique.
 
 * Limpieza
-Al finalizar, *elimina* los recursos creados en la práctica.
+Al finalizar, *elimina* los recursos creados en la práctica (secretos y parámetros).
