@@ -50,7 +50,109 @@ Muestra el secreto a través de la CLI mediante el comando siguiente. Asegúrate
 #+end_src
 
 * Acceder a secretos y parámetros desde la aplicación (SDK)
+#+begin_quote
+[!IMPORTANT]
+Para evitar tener que instalar demasiadas dependencias en el equipo local, utilizaremos *CloudShell* para este apartado.
+#+end_quote
 
+#+begin_quote
+[!IMPORTANT]
+Si lo prefieres, puedes utilizar cualquier otro SDK de otro lenguaje de programación (JavaScript, Python,...) en lugar de PHP. Deberás instalar dichos lenguajes y los SDK correspondientes.
+#+end_quote
+
+** Instalación de PHP en CloudShell
+1. Abre CloudShell en la cuenta de AWS
+2. Ejecuta el siguiente comando para instalar PHP, de acuerdo con las instrucciones de la [[https://docs.aws.amazon.com/cloudshell/latest/userguide/vm-specs.html#installing-software][documentación]]:
+   #+begin_src bash
+     sudo dnf install php
+   #+end_src
+3. Comprueba la correcta instalación ejecutando el siguiente comando:
+   #+begin_src bash
+     php --version
+   #+end_src
+
+#+begin_quote
+[!IMPORTANT]
+Los paquetes instalados en CloudShell solo persisten en la sesión activa. Si la sesión de CloudShell se cierra, deberás instalar el paquete otra vez.
+#+end_quote
+
+** Instalación del SDK de PHP
+Para poder interactuar con servicios de AWS desde lenguajes de programación, es necesario *instalar el SDK* del lenguaje correspondiente. En este caso, instalaremos el SDK de PHP siguiendo las [[https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/getting-started_installation.html][instrucciones oficiales]].
+
+Por simplicidad, utilizaremos el método de utilizar un [[https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/getting-started_installation.html#installing-by-using-the-packaged-phar][empaquetado phar]]. Para ello, será necesario [[https://docs.aws.amazon.com/aws-sdk-php/v3/download/aws.phar][descargar el paquete phar]] tal como indican las instrucciones. En *CloudShell*, puedes ejecutar el siguiente comando para descargar el archivo:
+#+begin_src bash
+  wget https://docs.aws.amazon.com/aws-sdk-php/v3/download/aws.phar
+#+end_src
+
+A partir de ahora, puedes hacer referencia a él desde nuestros archivos PHP mediante el siguiente código, ajustando la ruta correspondiente si fuera necesario:
+#+begin_src php
+  <?php
+     require './aws.phar';
+  ?>
+#+end_src
+
+** Acceso a parámetros de Parameter Store
+Crea un archivo en PHP
+
+** Acceso a secretos de Secrets Manager
+Crea un fichero PHP en CloudShell con el siguiente código *basado en el código de ejemplo* que hay disponible en la pestaña /Overview/ del secreto creado, dentro de la sección *Sample code*. En él se ha sustituido la carga del paquete de librería (pensada para utilizar el SDK con el gestor de paquetes ~composer~) por la carga del fichero ~.phar~ descargado anteriormente. También se ha eliminado la referencia al perfil, dado que en CloudShell las credenciales son las del usuario con la sesión iniciada en la consola de AWS (no hay fichero =~/.aws/credentials=).
+
+#+begin_quote
+[!IMPORTANT]
+El código de PHP de ejemplo de la pestaña /Overview/ puede incluir algunos errores, como por ejemplo la ausencia del carácter ~\~ de delimitador de ruta en la carga de librerías. El que se proporciona a continuación funciona correctamente.
+#+end_quote
+
+#+begin_src php
+<?php
+
+// Carga del SDK
+require 'aws.phar';
+
+// Clases para interactuar con el servicio correspondiente
+use Aws\SecretsManager\SecretsManagerClient;
+use Aws\Exception\AwsException;
+
+// Crear el cliente de Secrets Manager
+$client = new SecretsManagerClient([
+    'version' => '2017-10-17',
+    'region' => 'TU_REGION',
+]);
+
+$secret_name = '/practica-secretos/TUS_INICIALES/secret1';
+
+// Llamada a la API para obtener el secreto
+try {
+    $result = $client->getSecretValue([
+        'SecretId' => $secret_name,
+    ]);
+} catch (AwsException $e) {
+    throw $e;
+}
+
+// El resultado incluye varios campos. Accedemos al que contiene el secreto
+$secret = $result['SecretString'];
+
+
+// El código de la aplicación que tenga que trabajar con el secreto vendría aquí
+
+// Mostrar el resultado
+print("$secret\n");
+#+end_src
+
+Recuerda *sustituir* ~TUS_INICIALES~ por tus iniciales reales y ~TU_REGION~ por la región en la que estés. Comprueba también que el nombre del secreto es el correcto. Una vez creado el archivo (puedes utilizar el editor ~nano~, por ejemplo), ejecútalo con el intérprete de PHP:
+
+#+begin_src bash
+php fichero.php
+#+end_src
+
+Comprueba que se muestra el secreto en la consola.
+
+#+begin_quote
+[!IMPORTANT]
+Recuerda que en este caso estamos accediendo al secreto a través de CloudShell, donde tenemos los permisos del usuario de la consola (administrador, en este caso).
+
+En un entorno real, si el código PHP se está ejecutando en algún nodo de computación (máquina EC2, función Lambda, contenedor), deberíamos utilizar un *rol* asociado a dicho nodo de computación que tuviera *permisos de acceso* al secreto que queremos obtener.
+#+end_quote
 
 * Aplicación real en Beanstalk
 ** Variables de entorno
