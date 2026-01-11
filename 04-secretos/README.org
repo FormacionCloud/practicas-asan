@@ -84,7 +84,7 @@ Por simplicidad, utilizaremos el método de utilizar un [[https://docs.aws.amazo
   wget https://docs.aws.amazon.com/aws-sdk-php/v3/download/aws.phar
 #+end_src
 
-A partir de ahora, puedes hacer referencia a él desde nuestros archivos PHP mediante el siguiente código, ajustando la ruta correspondiente si fuera necesario:
+A partir de ahora, puedes hacer referencia a él desde los archivos PHP mediante el siguiente código, ajustando la ruta correspondiente si fuera necesario:
 #+begin_src php
   <?php
      require './aws.phar';
