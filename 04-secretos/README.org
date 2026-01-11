@@ -11,6 +11,19 @@ Los objetivos de esta práctica son los siguientes:
 - Rotar secretos de bases de datos automáticamente
 
 * Crear un secreto en Secrets Manager
+Crea un secreto en Secrets Manager con las siguientes características:
+- Secret Type- ~Other type of secret~
+- Key/value pairs - Crea una única pareja de clave/valor:
+  - Key - ~nombrecompleto~
+  - Value - Tu nombre y apellidos completo
+- Encryption Key - Deja el valor por defecto
+  [[./imagenes/02-secret-1.png]]
+- Secret name - ~/practica-secretos/TUS_INICIALES/secret1~
+  [[./imagenes/02-secret-2.png]]
+- No actives la rotación automática
+  [[./imagenes/02-secret-3.png]]
+- En la pantalla de resumen, puedes ver el código de ejemplo para acceder al secreto desde diferentes lenguajes de programación. Podrás consultar de nuevo el código al acceder a la pestaña de detalles del secreto una vez creado
+  [[./imagenes/02-secret-4.png]]
 
 * Crear un parámetro en Systems Manager Parameter Store
 Crea una parámetro en Systems Manager Parameter Store con las siguientes características:
@@ -24,6 +37,14 @@ Crea una parámetro en Systems Manager Parameter Store con las siguientes caract
 [[./imagenes/01-parametro.png]]
 
 * Acceder a secretos y parámetros desde la CLI
+1. Muestra el parámetro a través de la CLI mediante el comando siguiente:
+   #+begin_src bash
+   aws ssm get-parameter --name /practica-secretos/TUS_INICIALES/param1
+   #+end_src
+2. Muestra el secreto a través de la CLI mediante el comando siguiente:
+   #+begin_src bash
+     aws secretsmanager get-secret-value --secret-id /practica-secretos/TUS_INICIALES/secret1
+   #+end_src
 
 * Acceder a secretos y parámetros desde la aplicación (SDK)
 
