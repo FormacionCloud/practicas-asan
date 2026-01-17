@@ -108,45 +108,45 @@ Sustituye el código de la función por el que se proporciona a continuación. P
   def lambda_handler(event, context):
       # Iteramos el conjunto de registros que incluye el evento
       for record in event["Records"]:
-          # Obtenemos los datos del registro nuevo y del antiguo (en caso de sustitución o actualización)
-          new_item = record["dynamodb"]["NewImage"]
-          old_item = record["dynamodb"]["OldImage"]
-
-          # Obtener la fecha del pedido, el identificador del producto y la cantidad del registro nuevo
-          order_date_new = new_item.get("order_date", {}).get("S")
-          item_number_new = new_item.get("item_id", {}).get("S")
-          quantity_new = int(new_item.get("quantity", {}).get("N", 0))
+          print(record)
+          # Obtenemos los datos del registro nuevo (en caso de creación o actualización de elementos)
+          if "NewImage" in record["dynamodb"]:
+              new_item = record["dynamodb"]["NewImage"]
+              # Obtener la fecha del pedido, el identificador del producto y la cantidad del registro nuevo
+              order_date_new = new_item.get("order_date", {}).get("S")
+              item_number_new = new_item.get("item_id", {}).get("S")
+              quantity_new = int(new_item.get("quantity", {}).get("N", 0))
+              # Comprobar que existen los campos del registro nuevo y actualizar totales
+              if order_date_new and item_number_new and quantity_new:
+                  # Crear la clave de partición del total (fecha)
+                  date_partition_key = order_date_new.split("T")[0]
+                  # Actualizar los totales de la tabla
+                  orders_by_date_table.update_item(
+                      Key={"order_date": date_partition_key, "item_number": item_number_new},
+                      UpdateExpression="ADD #q :val",
+                      ExpressionAttributeNames={"#q": "quantity"},
+                      ExpressionAttributeValues={":val": quantity_new},
+                  )
           
-          # Obtener la fecha del pedido, el identificador del producto y la cantidad del registro antiguo 
-          order_date_old = old_item.get("order_date", {}).get("S")
-          item_number_old = old_item.get("item_id", {}).get("S")
-          quantity_old = int(old_item.get("quantity", {}).get("N", 0))
-
-          # Comprobar que existen los campos del registro nuevo y actualizar totales
-          if order_date_new and item_number_new and quantity_new:
-              # Crear la clave de partición del total (fecha)
-              date_partition_key = order_date_new.split("T")[0]
-              # Actualizar los totales de la tabla
-              orders_by_date_table.update_item(
-                  Key={"order_date": date_partition_key, "item_number": item_number_new},
-                  UpdateExpression="ADD #q :val",
-                  ExpressionAttributeNames={"#q": "quantity"},
-                  ExpressionAttributeValues={":val": quantity_new},
-              )
-              
-          # Comprobar que existen los campos del registro antiguo y actualizar totales
-          if order_date_old and item_number_old and quantity_old:
-              # Crear la clave de partición del total (fecha)
-              date_partition_key = order_date_old.split("T")[0]
-              # Actualizar los totales de la tabla
-              orders_by_date_table.update_item(
-                  Key={"order_date": date_partition_key, "item_number": item_number_old},
-                  UpdateExpression="ADD #q :val",
-                  ExpressionAttributeNames={"#q": "quantity"},
-                  # Sumamos el item en negativo (restamos)
-                  ExpressionAttributeValues={":val": -quantity_old},
-              )
-
+          # Obtenemos los datos del registro antiguo (en caso de actualización o borrado de elementos)
+          if "OldImage" in record["dynamodb"]:
+              old_item = record["dynamodb"]["OldImage"]
+              # Obtener la fecha del pedido, el identificador del producto y la cantidad del registro antiguo 
+              order_date_old = old_item.get("order_date", {}).get("S")
+              item_number_old = old_item.get("item_id", {}).get("S")
+              quantity_old = int(old_item.get("quantity", {}).get("N", 0))
+              # Comprobar que existen los campos del registro antiguo y actualizar totales
+              if order_date_old and item_number_old and quantity_old:
+                  # Crear la clave de partición del total (fecha)
+                  date_partition_key = order_date_old.split("T")[0]
+                  # Actualizar los totales de la tabla
+                  orders_by_date_table.update_item(
+                      Key={"order_date": date_partition_key, "item_number": item_number_old},
+                      UpdateExpression="ADD #q :val",
+                      ExpressionAttributeNames={"#q": "quantity"},
+                      # Sumamos el item en negativo (restamos)
+                      ExpressionAttributeValues={":val": -quantity_old},
+                  )
 #+end_src
 
 [[./imagenes/13-lambda.png]]
