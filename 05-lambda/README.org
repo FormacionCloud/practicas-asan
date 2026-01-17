@@ -95,6 +95,11 @@ Crea una función lambda desde cero, con motor Python 3.14 y con el *rol de ejec
 [[./imagenes/12-lambda.png]]
 
 Sustituye el código de la función por el que se proporciona a continuación. Posteriormente, guarda los cambios (CTRL + s) y pulsa en el botón de *despliegue*:
+#+begin_quote
+[!IMPORTANT]
+El código propuesto no está pensado para su uso en producción, sino simplemente para ser utilizado con propósitos académicos. Es posible que contenga fallos inesperados.
+#+end_quote
+
 #+begin_src python
   import json
   import os
