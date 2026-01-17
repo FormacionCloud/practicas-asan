@@ -1,0 +1,199 @@
+* Crear agregaciones para tablas de DynamoDB con Lambda y DynamoDB Streams
+Almacenamiento de parámetros y secretos compartidos
+#+begin_quote
+[!IMPORTANT]
+Utilizaremos la *Landing Zone* para realizar esta práctica.
+#+end_quote
+
+Los objetivos de esta práctica son los siguientes:
+- Crear funciones Lambda para realizar automatizaciones
+- Implementar arquitecturas basadas en eventos
+- Crear roles de ejecución con permisos para funciones Lambda
+- Procesar flujos de datos para realizar cálculos agregados sobre datos almacenados en bases de datos
+
+* Diagrama de la arquitectura 
+El objetivo de la arquitectura es calcular los totales agregados sobre las órdenes de pedidos que se vayan creando en una tabla de DynamoDB. Cada vez que se añada o se elimine un registro de pedido en la base de datos, se ejecutará una función Lambda que se encargará de calcular los totales agregados del total de los productos procesados en dichas órdenes.
+
+Para almacenar los pedidos se utilizará una tabla de DynamoDB, y para almacenar los totales agregados, otra tabla diferente. Así, solo se registrarán los eventos de la tabla de pedidos y no se realizará ninguna acción cuando se actualicen los totales.
+
+Utilizaremos la característica *DynamoDB Streams* para notificar las actualizaciones que se produzcan en la tabla de pedidos. El flujo de cambios será leído por la *función Lambda*, que se encargará de recalcular los totales correspondientes.
+
+El diagrama de arquitectura es el siguiente:
+
+
+TODO
+
+#+begin_quote
+[!NOTE]
+Esta práctica está basada en el post [[https://aws.amazon.com/es/blogs/database/build-aggregations-for-amazon-dynamodb-tables-using-amazon-dynamodb-streams/][Build aggregations for Amazon DynamoDB tables using Amazon DynamoDB Streams]]. En el post tienes más detalles sobre cómo utilizar la CLI para realizar las tareas de esta práctica.
+#+end_quote
+
+* Realización de la práctica 
+** Creación de la tabla de DynamoDB para pedidos y habilitación de los streams
+Crear tabla:
+[[./imagenes/01-dynamodb.png]]
+
+Activar streams:
+[[./imagenes/02-streams.png]]
+
+[[./imagenes/03-streams.png]]
+
+** Creación de la tabla de DynamoDB para almacenar los totales agregados
+Crear tabla:
+[[./imagenes/04-totales.png]]
+
+** Creación del rol de ejecución de la función Lambda
+Crear rol:
+[[./imagenes/05-role.png]]
+
+Asociar permisos:
+[[./imagenes/06-role.png]]
+
+[[./imagenes/07-role.png]]
+
+[[./imagenes/08-role.png]]
+
+Comprobar que el rol tiene las dos políticas asignadas. A continuación, crear una política inline:
+[[./imagenes/09-role.png]]
+
+Con el siguiente código JSON, sustituyendo los *ARNs* por los ARN de las tablas creadas anteriormente:
+#+begin_src json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AccesoTablasPedidos",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:PutItem",
+        "dynamodb:GetItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:Query",
+        "dynamodb:DescribeStream",
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator",
+        "dynamodb:ListStreams"
+      ],
+      "Resource": [
+        "REEMPLAZAR_POR_ARN_TABLA_STREAMS",
+        "REEMPLAZAR_POR_ARN_TABLA_TOTALES"
+      ]
+    }
+  ]
+}
+#+end_src
+
+Por último, asignar un nombre a la política inline y guardar los cambios:
+[[./imagenes/10-role.png]]
+
+Para terminar, comprueba que el rol incluye todos los permisos necesarios:
+[[./imagenes/11-role.png]]
+
+** Creación y configuración de la función Lambda
+Crea una función lambda desde cero, con motor Python 3.14 y con el *rol de ejecución* creado en el apartado anterior:
+[[./imagenes/12-lambda.png]]
+
+Sustituye el código de la función por el que se proporciona a continuación. Posteriormente, guarda los cambios (CTRL + s) y pulsa en el botón de *despliegue*:
+#+begin_src python
+  import json
+  import os
+  import boto3
+
+  dynamodb = boto3.resource("dynamodb")
+  # Lectura de los nombres de tabla desde las variables de entorno
+  orders_table = dynamodb.Table(os.environ["tabla_pedidos"])
+  orders_by_date_table = dynamodb.Table(os.environ["tabla_totales"])
+
+  def lambda_handler(event, context):
+      # Iteramos el conjunto de registros que incluye el evento
+      for record in event["Records"]:
+          # Obtenemos los datos del registro nuevo y del antiguo (en caso de sustitución o actualización)
+          new_item = record["dynamodb"]["NewImage"]
+          old_item = record["dynamodb"]["OldImage"]
+
+          # Obtener la fecha del pedido, el identificador del producto y la cantidad del registro nuevo
+          order_date_new = new_item.get("order_date", {}).get("S")
+          item_number_new = new_item.get("item_id", {}).get("S")
+          quantity_new = int(new_item.get("quantity", {}).get("N", 0))
+          
+          # Obtener la fecha del pedido, el identificador del producto y la cantidad del registro antiguo 
+          order_date_old = old_item.get("order_date", {}).get("S")
+          item_number_old = old_item.get("item_id", {}).get("S")
+          quantity_old = int(old_item.get("quantity", {}).get("N", 0))
+
+          # Comprobar que existen los campos del registro nuevo y actualizar totales
+          if order_date_new and item_number_new and quantity_new:
+              # Crear la clave de partición del total (fecha)
+              date_partition_key = order_date_new.split("T")[0]
+              # Actualizar los totales de la tabla
+              orders_by_date_table.update_item(
+                  Key={"order_date": date_partition_key, "item_number": item_number_new},
+                  UpdateExpression="ADD #q :val",
+                  ExpressionAttributeNames={"#q": "quantity"},
+                  ExpressionAttributeValues={":val": quantity_new},
+              )
+              
+          # Comprobar que existen los campos del registro antiguo y actualizar totales
+          if order_date_old and item_number_old and quantity_old:
+              # Crear la clave de partición del total (fecha)
+              date_partition_key = order_date_old.split("T")[0]
+              # Actualizar los totales de la tabla
+              orders_by_date_table.update_item(
+                  Key={"order_date": date_partition_key, "item_number": item_number_old},
+                  UpdateExpression="ADD #q :val",
+                  ExpressionAttributeNames={"#q": "quantity"},
+                  # Sumamos el item en negativo (restamos)
+                  ExpressionAttributeValues={":val": -quantity_old},
+              )
+
+#+end_src
+
+[[./imagenes/13-lambda.png]]
+
+** Creación del disparador de ejecución de la función Lambda
+En la *consola de DynamoDB*, accede a la tabla de pedidos y crea un *disparador* para que los streams se envíen a la función lambda:
+[[./imagenes/14-trigger.png]]
+
+Selecciona la función lambda creada y un tamaño de ventana de *2*, para que se envíen los registros de dos en dos conforme se vayan creando:
+[[./imagenes/15-trigger.png]]
+
+Vuelve de nuevo a la *consola de Lambda* y *recarga la página*. Verás que aparece configurado un *disparador*:
+[[./imagenes/16-trigger.png]]
+
+Es posible configurar el disparador para *filtrar* algunos eventos de tal manera que solo se procesen por la función lambda los eventos filtrados. Por ejemplo, podríamos hacer que la función lambda solo se ejecutara ante eventos de tipo ~PUT~ o eventos de tipo ~DELETE~ en la tabla de DynamoDB. Por sencillez, y debido a que nuestro código va a contemplar tanto añadidos como borrado y actualización de elementos, no configuraremos esta característica.
+
+** Variables de entorno
+Para terminar, deberemos crear dos variables de entorno para que el código pueda obtener el nombre de las tablas que vamos a utilizar. Las variables a crear serán:
+- ~tabla_pedidos~
+- ~tabla_totales~
+
+Dichas variables harán referencia a los *nombres de las tablas* utilizados. Para ello, crearemos dichas variables en la sección "Configuration / Environment variables" de la función Lambda:
+[[./imagenes/17-envvars.png]]
+
+[[./imagenes/18-envvars.png]]
+
+
+** Comprobación del correcto funcionamiento
+
+#+begin_src bash
+  aws dynamodb put-item --table-name practica-pedidos-streams-PPA \
+ --item '{"order_id": {"S": "178526"}, "order_date": {"S": "'"$(date -u +"%Y-%m-%dT%H:%M:%SZ")"'"}, "item_id": {"S": "item123"}, "quantity": {"N": "10"}}'
+ 
+ aws dynamodb put-item --table-name practica-pedidos-streams-PPA \
+ --item '{"order_id": {"S": "178527"}, "order_date": {"S": "'"$(date -u +"%Y-%m-%dT%H:%M:%SZ")"'"}, "item_id": {"S": "item123"}, "quantity": {"N": "30"}}'
+
+ aws dynamodb put-item --table-name practica-pedidos-streams-PPA \
+ --item '{"order_id": {"S": "172528"}, "order_date": {"S": "'"$(date -u +"%Y-%m-%dT%H:%M:%SZ")"'"}, "item_id": {"S": "item312"}, "quantity": {"N": "10"}}'
+ 
+ aws dynamodb put-item --table-name practica-pedidos-streams-PPA \
+ --item '{"order_id": {"S": "178529"}, "order_date": {"S": "'"$(date -u +"%Y-%m-%dT%H:%M:%SZ")"'"}, "item_id": {"S": "item312"}, "quantity": {"N": "30"}}'
+
+#+end_src
+
+
+* Entrega
+Documenta la realización de la práctica explicando los pasos seguidos. Incluye las *capturas de pantalla* necesarias. Recuerda mostrar tus datos personales (nombre y apellidos, iniciales) en aquellos apartados donde se indique.
+
+* Limpieza
+Al utilizar servicios serverless, no es necesario eliminarlos al terminar la práctica, dado que no incurrirán en un coste asociado si no se utilizan.
