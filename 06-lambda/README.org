@@ -104,6 +104,18 @@ Crea una base de datos *MySql* en una *subred privada* de una *VPC*. Utiliza el 
 El resto de parámetros puedes dejarlos por defecto, no necesitaremos ninguna configuración especial.
 
 ** Creación del Proxy RDS
+Crea un proxy RDS para la base de datos. Es una buena idea utilizar un proxy para el acceso desde funciones Lambda, porque cada una de las ejecuciones utilizará una conexión diferente, pudiendo agotar las de la base de datos. Para ello, accede a la consola de RDS y crea un proxy para la base de datos creada en el apartado anterior:
+[[./imagenes/03-proxy.png]]
+
+[[./imagenes/03-proxy-2.png]]
+
+El proxy necesita crear un secreto en Secrets Manager para sincronizar el password. Para ello, crea un secreto nuevo para utilizar con base de datos. Utiliza el nombre de usuario y password de la base de datos:
+[[./imagenes/03-proxy-3.png]]
+
+[[./imagenes/03-proxy-4.png]]
+
+La creación del proxy tarda unos minutos. Puedes seguir con el siguiente apartado mientras se termina de crear. *Apunta la URL del endpoint* para utilizarlo más adelante.
+[[./imagenes/03-proxy-5.png]]
 
 ** Creación y configuración de la función Lambda
 Crea una función lambda desde cero, con motor *Python 3.14* y con un *rol de ejecución nuevo*:
