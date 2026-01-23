@@ -98,7 +98,7 @@ Es necesario disponer de una instalación de MySQL en el equipo local. También 
 #+end_quote
 
 En primer lugar, clona el repositorio si no lo has hecho ya. Accede a la carpeta ~06-lambda/src~ y ejecuta el siguiente comando desde Visual Studio Code:
-#+begin_src python
+#+begin_src bash
   pip install --target ./ pymysql
 #+end_src
 
