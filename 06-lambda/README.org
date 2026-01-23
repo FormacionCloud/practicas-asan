@@ -18,7 +18,6 @@ Simularemos un entorno de trabajo real, en el que utilizaremos el *equipo local*
 *Para evitar tener que modificar el código de la aplicación* con las referencias a los *datos de conexión* de las bases de datos *local* y en *producción*, utilizaremos *variables de entorno*: el código será el mismo, pero los datos de conexión dependerán de la infraestructura donde se esté ejecutando.
 
 El diagrama de arquitectura es el siguiente:
-TODO: añadir VPC y grupos de seguridad
 #+begin_src plantuml :file ./imagenes/00-arquitectura.png :exports results
   @startuml VPC
   !define AWSPuml https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v19.0/dist
@@ -26,14 +25,17 @@ TODO: añadir VPC y grupos de seguridad
   !include AWSPuml/AWSSimplified.puml
   !include AWSPuml/General/Client.puml
   !include AWSPuml/Compute/LambdaLambdaFunction.puml
-  !include AWSPuml/Database/DynamoDB.puml
   !include AWSPuml/Database/Database.puml
+  !include AWSPuml/Database/RDSProxyInstance.puml
   !include AWSPuml/Database/AuroraAmazonRDSInstance.puml
   !include AWSPuml/Groups/Generic.puml
   !include AWSPuml/Groups/CorporateDataCenter.puml
   !include AWSPuml/Groups/AWSCloud.puml
+  !include AWSPuml/Groups/SecurityGroup.puml
+  !include AWSPuml/Groups/VPC.puml
   !include AWSPuml/General/SourceCode.puml
   !include AWSPuml/General/Document.puml
+  !include AWSPuml/NetworkingContentDelivery/VPCElasticNetworkInterface.puml
 
   left to right direction
 
@@ -50,10 +52,22 @@ TODO: añadir VPC y grupos de seguridad
   AWSCloudGroup(cloud,"Cuenta AWS alumn@") {
     Document(envvars2, "Variables de entorno en Lambda", "")
     LambdaLambdaFunction(lambda, "Función lambda", "")
-    AuroraAmazonRDSInstance(dbrds, "Base de datos RDS", "")
+    VPCGroup(vpc, "VPC") {
+      SecurityGroupGroup(lambdaENIsg, "Lambda SG") {
+        VPCElasticNetworkInterface(lambdaENI, "Lambda ENI", "")
+      }
+      SecurityGroupGroup(proxysg, "Proxy SG") {
+        RDSProxyInstance(proxyRDS, "Proxy RDS", "")
+      }
+      SecurityGroupGroup(rdssg, "RDS SG") {
+        AuroraAmazonRDSInstance(dbrds, "Base de datos RDS", "")
+      }
+    }
     SourceCode(code2, "Código", "")
     lambda ---> code2 : "Ejecuta"
-    code2 ---> dbrds : "Accede a"
+    code2 ---> lambdaENI : "A través de"
+    lambdaENI ---> proxyRDS : "Accede a"
+    proxyRDS -> dbrds : ""
     envvars2 <-[dotted]- code2 : "Lee"
   }
 
@@ -92,8 +106,8 @@ El resto de parámetros puedes dejarlos por defecto, no necesitaremos ninguna co
 ** Creación del Proxy RDS
 
 ** Creación y configuración de la función Lambda
-Crea una función lambda desde cero, con motor *Python 3.14* y con un *rol de ejecución nuevo*.
-[[./imagenes/12-lambda.png]]
+Crea una función lambda desde cero, con motor *Python 3.14* y con un *rol de ejecución nuevo*:
+[[./imagenes/02-lambda.png]]
 
 ** Modificación del rol de ejecución de la función Lambda
 Para asociar la función lambda a una VPC, es necesario que el *rol de ejecución* de la función Lambda disponga de los *permisos necesarios*. Para ello, es necesario añadir la política gestionada ~AWSLambdaVPCAccessExecutionRole~ al rol de ejecución de la función Lambda.
@@ -111,7 +125,7 @@ Esos permisos son necesarios únicamente para realizar la asociación de la func
 Dado que vamos a realizar esta acción desde la consola, no es necesario hacer nada en este apartado.
 
 ** Conexión de la función a la VPC
-Modifica la configuración de la función para conectar la función Lambda a la VPC donde hayas creado la base de datos de RDS.
+Modifica la configuración de la función para conectar la función Lambda a la VPC donde hayas creado la base de datos de RDS:
 [[./imagenes/01-vpc.png]]
 
 Asegúrate de lo siguiente:
