@@ -4,7 +4,7 @@ import pymysql
 import json
 import os
 
-# rds settings
+# Variables de entorno
 user_name = os.environ['USER_NAME']
 password = os.environ['PASSWORD']
 rds_proxy_host = os.environ['RDS_PROXY_HOST']
@@ -13,8 +13,6 @@ db_name = os.environ['DB_NAME']
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-# create the database connection outside of the handler to allow connections to be
-# re-used by subsequent function invocations.
 try:
     conn = pymysql.connect(host=rds_proxy_host, user=user_name, passwd=password, db=db_name, connect_timeout=5)
 except pymysql.MySQLError as e:
@@ -51,6 +49,7 @@ def lambda_handler(event, context):
       return(e)
     
 
+# Este código solo se ejecuta en local. Al final tienes ejemplos sobre cómo ejecutar el código en la línea de comando de Visual Studio Code
 if __name__ == '__main__':
     # Configurar logger para mostrar en local
     logger.addHandler(logging.StreamHandler(sys.stdout))
@@ -64,8 +63,8 @@ if __name__ == '__main__':
     print("---")
 
 
-# Ejecución local (string, comilla simple):
-# python lambda.py '{"CustID": "13339", "Name": "PPRIETO"}'
+# Ejemplo de ejecución en local (observar la comilla simple para introducir el parámetro como texto)
+# python lambda.py '{"CustID": "13339", "Name": "Mi Nombre y Apellido"}'
 
 # Evento lambda test (objeto json, no string)
 # {"CustID": "123123123", "Name": "PPRIETO"}

@@ -87,6 +87,48 @@ Esta práctica está basada en el tutorial oficial [[https://docs.aws.amazon.com
 
 * Realización de la práctica 
 ** Prueba del código en entorno local
+#+begin_quote
+[!NOTE]
+Para hacer la prueba en entorno local, se supone que tienes correctamente configurado el editor *Visual Studio Code* junto con *Python*. En el módulo de base de datos tienes un vídeo en el que se detalla cómo instalar todo lo necesario.
+#+end_quote
+
+#+begin_quote
+[!NOTE]
+Es necesario disponer de una instalación de MySQL en el equipo local. También puedes utilizar cualquier otra base de datos de tipo MySQL a la que tengas acceso. Debes tener creada una *base de datos* inicial.
+#+end_quote
+
+En primer lugar, clona el repositorio si no lo has hecho ya. Accede a la carpeta ~06-lambda/src~ y ejecuta el siguiente comando desde Visual Studio Code:
+#+begin_src python
+  pip install --target ./ pymysql
+#+end_src
+
+Este comando instala las dependencias del proyecto en el directorio actual. Si todo ha ido bien, dentro de la carpeta ~src~ verás dos carpetas adicionales, que contienen las librerías necesarias para acceder a MySQL desde el código:
+[[./imagenes/05-local.png]]
+
+A continuación, *inspecciona el código* del fichero ~lambda.py~. Observa que utiliza *variables de entorno* para obtener los *datos de conexión de la base de datos* a la que se va a conectar.
+
+Llega el momento de *probar el código*. Para ello, es necesario configurar *variables de entorno locales* antes de ejecutarlo. En *Windows*, ejecuta el siguiente código, *sustituyendo los valores por los datos de conexión de tu servidor MySQL*:
+#+begin_src bash
+  set DB_NAME=NOMBRE_BASE_DATOS
+  set RDS_PROXY_HOST=localhost
+  set USER_NAME=USUARIO_BASE_DATOS
+  set PASSWORD=PASS_BASE_DATOS
+#+end_src
+
+O en *Linux* (o /Windows Subsystem for Linux/):
+#+begin_src bash
+  export DB_NAME=NOMBRE_BASE_DATOS
+  export RDS_PROXY_HOST=localhost
+  export USER_NAME=USUARIO_BASE_DATOS
+  export PASSWORD=PASS_BASE_DATOS
+#+end_src
+
+A continuación, *ejecuta el siguiente* comando en un terminal de Visual Studio Code:
+#+begin_src bash
+  python lambda.py '{"CustID": "13339", "Name": "Mi Nombre y Apellido"}'
+#+end_src
+
+Puedes crear más registros cambiando la clave ~CustID~. Comprueba en tu base de datos que se han creado los registros correspondientes.
 
 ** Creación de la base de datos RDS
 #+begin_quote
@@ -99,7 +141,7 @@ Crea una base de datos *MySql* en una *subred privada* de una *VPC*. Utiliza el 
 - *Master password* y *Confirm master password* - Un password de tu elección
 - *Tipo de instancia* - ~db.t4g.micro~
 - *Grupo de seguridad* - Un grupo de seguridad que se utilizará para permitir el acceso desde la función Lambda. Puedes utilizar uno que tengas ya existente o crear uno nuevo
-- *Additional configuration / Initial database name* - Utiliza el nombre ~lambda-db~
+- *Additional configuration / Initial database name* - Utiliza el nombre ~lambda-db~. Asegúrate de *apuntar este dato* para utilizarlo en la configuración de las variables de entorno de la función Lambda
 
 El resto de parámetros puedes dejarlos por defecto, no necesitaremos ninguna configuración especial.
 
@@ -117,7 +159,7 @@ El proxy necesita crear un secreto en Secrets Manager para sincronizar el passwo
 La creación del proxy tarda unos minutos. Puedes seguir con el siguiente apartado mientras se termina de crear. *Apunta la URL del endpoint* para utilizarlo más adelante.
 [[./imagenes/03-proxy-5.png]]
 
-** Creación y configuración de la función Lambda
+** Creación de la función Lambda
 Crea una función lambda desde cero, con motor *Python 3.14* y con un *rol de ejecución nuevo*:
 [[./imagenes/02-lambda.png]]
 
@@ -148,12 +190,44 @@ Asegúrate de lo siguiente:
 [[./imagenes/01-grupo-seguridad.png]]
 
 ** Actualización del código de la función desde VS Code
+Procedemos ahora a *modificar el código de la función lambda*. Para ello, *comprime en formato ZIP* el *contenido de la carpeta* ~src~. El objetivo es crear un fichero ZIP en cuyo interior se encuentre el fichero ~lambda.py~ y las *carpetas de librerías* en la raíz del fichero ZIP:
+[[./imagenes/06-codigo-zip.png]]
+
+Accede a la función lambda en la consola de AWS y sube el fichero ZIP:
+[[./imagenes/06-codigo-zip-2.png]]
+
+Una vez actualizado, puedes *editarlo desde Visual Studio Code*:
+[[./imagenes/06-vscode.png]]
+
+Verás que el código se descarga a una *carpeta temporal de tu equipo* y que dicha carpeta es abierta por Visual Studio Code. Si haces algún cambio en el fichero, VSCode *preguntará si quieres actualizar* el código en Lambda:
+[[./imagenes/06-vscode-2.png]]
+
+Si lo deseas, puedes hacer algún pequeño cambio (en algún log) para ver cómo se actualizan los cambios a la función lambda.
+
+** Creación de variables de entorno
+Modifica la configuración de la función lambda para añadir las siguientes *variables de entorno* con los valores correspondientes a la configuración de la *base de datos y el proxy RDS*:
+[[./imagenes/04-envvars.png]]
+
+Recuerda que el código de la función lambda utiliza *variables de entorno* para saber los datos de conexión a la base de datos que necesita utilizar.
+
+#+begin_quote
+[!NOTE]
+Para almacenar datos de configuración o secretos es posible utilizar también *SSM Parameter Store* o *Secrets Manager* en lugar de variables de entorno. No obstante, si se utiliza alguno de esos servicios, es necesario *modificar el código de la función* para obtener dichos secretos mediante el SDK. Cada uno de esos enfoques tiene sus ventajas e inconvenientes.
+#+end_quote
 
 ** Prueba de la función Lambda
+Ya tenemos todo listo para probar la función. Para ello, en primer lugar iremos a la consola de AWS y crearemos un evento de test:
+[[./imagenes/07-test.png]]
 
-** Variables de entorno
+Puedes utilizar el siguiente código:
+#+begin_src json
+  {
+    "CustID": "339921",
+    "Name": "Test Pedro Prieto"
+  }
+#+end_src
 
-** Comprobación del correcto funcionamiento
+Puedes probar a crear varios registros cambiando el valor del campo ~CustID~.
 
 * Entrega
 Documenta la realización de la práctica explicando los pasos seguidos. Incluye las *capturas de pantalla* necesarias. Recuerda mostrar tus datos personales (nombre y apellidos, iniciales) en aquellos apartados donde se indique.
