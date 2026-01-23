@@ -18,6 +18,7 @@ Simularemos un entorno de trabajo real, en el que utilizaremos el *equipo local*
 *Para evitar tener que modificar el código de la aplicación* con las referencias a los *datos de conexión* de las bases de datos *local* y en *producción*, utilizaremos *variables de entorno*: el código será el mismo, pero los datos de conexión dependerán de la infraestructura donde se esté ejecutando.
 
 El diagrama de arquitectura es el siguiente:
+TODO: añadir VPC y grupos de seguridad
 #+begin_src plantuml :file ./imagenes/00-arquitectura.png :exports results
   @startuml VPC
   !define AWSPuml https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v19.0/dist
@@ -71,8 +72,65 @@ Esta práctica está basada en el tutorial oficial [[https://docs.aws.amazon.com
 #+end_quote
 
 * Realización de la práctica 
+** Prueba del código en entorno local
+
 ** Creación de la base de datos RDS
+#+begin_quote
+[!NOTE]
+Para realizar este apartado, se asume que sabes crear una base de datos en Amazon RDS. Si tienes alguna duda, utiliza el foro de clase.
+#+end_quote
+
+Crea una base de datos *MySql* en una *subred privada* de una *VPC*. Utiliza el asistente *Full Configuration*, con plantilla *Free tier* y despliegue de tipo *Single AZ*. Asegúrate de configurar los siguientes *parámetros*:
+- *Master username* - ~admin-TUS_INICIALES~, cambiando ~TUS_INICIALES~ por tus iniciales reales
+- *Master password* y *Confirm master password* - Un password de tu elección
+- *Tipo de instancia* - ~db.t4g.micro~
+- *Grupo de seguridad* - Un grupo de seguridad que se utilizará para permitir el acceso desde la función Lambda. Puedes utilizar uno que tengas ya existente o crear uno nuevo
+- *Additional configuration / Initial database name* - Utiliza el nombre ~lambda-db~
+
+El resto de parámetros puedes dejarlos por defecto, no necesitaremos ninguna configuración especial.
 
 ** Creación del Proxy RDS
 
-** Creación del rol de ejecución de la función Lambda
+** Creación y configuración de la función Lambda
+Crea una función lambda desde cero, con motor *Python 3.14* y con un *rol de ejecución nuevo*.
+[[./imagenes/12-lambda.png]]
+
+** Modificación del rol de ejecución de la función Lambda
+Para asociar la función lambda a una VPC, es necesario que el *rol de ejecución* de la función Lambda disponga de los *permisos necesarios*. Para ello, es necesario añadir la política gestionada ~AWSLambdaVPCAccessExecutionRole~ al rol de ejecución de la función Lambda.
+
+#+begin_quote
+[!IMPORTANT]
+Ese permiso se añade *automáticamente* al rol de ejecución si se asocia la función lambda a la VPC *a través de la consola*. Si por el contrario la acción se realiza a través de la *CLI*, entonces sí que es necesario modificar el rol *manualmente*.
+#+end_quote
+
+#+begin_quote
+[!NOTE]
+Esos permisos son necesarios únicamente para realizar la asociación de la función a la VPC y crear el *interfaz de red virtual* privado que utilizará la función Lambda. Una vez terminada esa acción, es posible quitar dichos permisos si el código de la función no necesita realizar acciones adicionales sobre la VPC. Para más información, consultar la [[https://docs.aws.amazon.com/lambda/latest/dg/configuration-vpc.html#configuration-vpc-attaching][documentación]].
+#+end_quote
+
+Dado que vamos a realizar esta acción desde la consola, no es necesario hacer nada en este apartado.
+
+** Conexión de la función a la VPC
+Modifica la configuración de la función para conectar la función Lambda a la VPC donde hayas creado la base de datos de RDS.
+[[./imagenes/01-vpc.png]]
+
+Asegúrate de lo siguiente:
+- Elegir la misma *VPC* usada para desplegar la base de datos
+- Elegir una *subred*, en principio y por simplicidad puedes utilizar la misma subred que utiliza la base de datos
+- Utilizar un *grupo de seguridad* que permita el acceso al grupo de seguridad de la base de datos. De nuevo, aquí puedes utilizar un grupo de seguridad existente o crear uno nuevo
+
+[[./imagenes/01-grupo-seguridad.png]]
+
+** Actualización del código de la función desde VS Code
+
+** Prueba de la función Lambda
+
+** Variables de entorno
+
+** Comprobación del correcto funcionamiento
+
+* Entrega
+Documenta la realización de la práctica explicando los pasos seguidos. Incluye las *capturas de pantalla* necesarias. Recuerda mostrar tus datos personales (nombre y apellidos, iniciales) en aquellos apartados donde se indique.
+
+* Limpieza
+Elimina los recursos utilizados en la práctica: *proxy RDS* y *base de datos RDS*. La función lambda no es necesario que la elimines, dado que no tiene coste a no ser que se supere el millón de ejecuciones.
