@@ -1,0 +1,78 @@
+* Acceso a base de datos RDS desde Lambda
+#+begin_quote
+[!IMPORTANT]
+Utilizaremos la *Landing Zone* para realizar esta práctica.
+#+end_quote
+
+Los objetivos de esta práctica son los siguientes:
+- Configurar una base de datos RDS con un proxy de conexiones
+- Crear funciones Lambda con acceso a bases de datos relacionales
+- Configurar funciones lambda para acceder a recursos dentro de la VPC
+- Utilizar variables de entorno para independizar el código de la configuración de entornos locales de desarrollo y producción
+
+* Diagrama de la arquitectura 
+El objetivo de esta práctica es crear y desplegar una función Lambda que añada registros y realice consultas en una base de datos.
+
+Simularemos un entorno de trabajo real, en el que utilizaremos el *equipo local* como equipo de desarrollo para *crear* y *testear* el código con una *base de datos local* de pruebas. Una vez comprobado el correcto funcionamiento en el equipo local, realizaremos el *despliegue de la aplicación* en el servicio *Lambda*, que utilizará una *base de datos RDS* desplegada en AWS.
+
+*Para evitar tener que modificar el código de la aplicación* con las referencias a los *datos de conexión* de las bases de datos *local* y en *producción*, utilizaremos *variables de entorno*: el código será el mismo, pero los datos de conexión dependerán de la infraestructura donde se esté ejecutando.
+
+El diagrama de arquitectura es el siguiente:
+#+begin_src plantuml :file ./imagenes/00-arquitectura.png :exports results
+  @startuml VPC
+  !define AWSPuml https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v19.0/dist
+  !include AWSPuml/AWSCommon.puml
+  !include AWSPuml/AWSSimplified.puml
+  !include AWSPuml/General/Client.puml
+  !include AWSPuml/Compute/LambdaLambdaFunction.puml
+  !include AWSPuml/Database/DynamoDB.puml
+  !include AWSPuml/Database/Database.puml
+  !include AWSPuml/Database/AuroraAmazonRDSInstance.puml
+  !include AWSPuml/Groups/Generic.puml
+  !include AWSPuml/Groups/CorporateDataCenter.puml
+  !include AWSPuml/Groups/AWSCloud.puml
+  !include AWSPuml/General/SourceCode.puml
+  !include AWSPuml/General/Document.puml
+
+  left to right direction
+
+  CorporateDataCenterGroup(local, "Equipo local") {
+    Document(envvars1, "Variables de entorno locales", "")
+    Client(client, "Entorno de desarrollo", "")
+    Database(db, "Base de datos local", "")
+    SourceCode(code1, "Código", "")
+    client ---> code1 : "Ejecuta"
+    code1 ---> db : "Accede a"
+    envvars1 <-[dotted]- code1 : "Lee"
+  }
+
+  AWSCloudGroup(cloud,"Cuenta AWS alumn@") {
+    Document(envvars2, "Variables de entorno en Lambda", "")
+    LambdaLambdaFunction(lambda, "Función lambda", "")
+    AuroraAmazonRDSInstance(dbrds, "Base de datos RDS", "")
+    SourceCode(code2, "Código", "")
+    lambda ---> code2 : "Ejecuta"
+    code2 ---> dbrds : "Accede a"
+    envvars2 <-[dotted]- code2 : "Lee"
+  }
+
+  code1 <-[#green,dotted]> code2 : "Mismo código"
+
+  @enduml
+#+end_src
+
+#+RESULTS:
+[[file:./imagenes/00-arquitectura.png]]
+
+
+#+begin_quote
+[!NOTE]
+Esta práctica está basada en el tutorial oficial [[https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-lambda-tutorial.html][Tutorial: Using a Lambda function to access an Amazon RDS database]].
+#+end_quote
+
+* Realización de la práctica 
+** Creación de la base de datos RDS
+
+** Creación del Proxy RDS
+
+** Creación del rol de ejecución de la función Lambda
