@@ -141,7 +141,7 @@ Crea una base de datos *MySql* en una *subred privada* de una *VPC*. Utiliza el 
 - *Master password* y *Confirm master password* - Un password de tu elección
 - *Tipo de instancia* - ~db.t4g.micro~
 - *Grupo de seguridad* - Un grupo de seguridad que se utilizará para permitir el acceso desde la función Lambda. Puedes utilizar uno que tengas ya existente o crear uno nuevo
-- *Additional configuration / Initial database name* - Utiliza el nombre ~lambda-db~. Asegúrate de *apuntar este dato* para utilizarlo en la configuración de las variables de entorno de la función Lambda
+- *Additional configuration / Initial database name* - Utiliza el nombre ~lambdadb~. Asegúrate de *apuntar este dato* para utilizarlo en la configuración de las variables de entorno de la función Lambda
 
 El resto de parámetros puedes dejarlos por defecto, no necesitaremos ninguna configuración especial.
 
