@@ -167,16 +167,11 @@ Crea una función lambda desde cero, con motor *Python 3.14* y con un *rol de ej
 Para asociar la función lambda a una VPC, es necesario que el *rol de ejecución* de la función Lambda disponga de los *permisos necesarios*. Para ello, es necesario añadir la política gestionada ~AWSLambdaVPCAccessExecutionRole~ al rol de ejecución de la función Lambda.
 
 #+begin_quote
-[!IMPORTANT]
-Ese permiso se añade *automáticamente* al rol de ejecución si se asocia la función lambda a la VPC *a través de la consola*. Si por el contrario la acción se realiza a través de la *CLI*, entonces sí que es necesario modificar el rol *manualmente*.
-#+end_quote
-
-#+begin_quote
 [!NOTE]
 Esos permisos son necesarios únicamente para realizar la asociación de la función a la VPC y crear el *interfaz de red virtual* privado que utilizará la función Lambda. Una vez terminada esa acción, es posible quitar dichos permisos si el código de la función no necesita realizar acciones adicionales sobre la VPC. Para más información, consultar la [[https://docs.aws.amazon.com/lambda/latest/dg/configuration-vpc.html#configuration-vpc-attaching][documentación]].
 #+end_quote
 
-Dado que vamos a realizar esta acción desde la consola, no es necesario hacer nada en este apartado.
+*Modifica el rol* de la función Lambda para que incluya dicha política.
 
 ** Conexión de la función a la VPC
 Modifica la configuración de la función para conectar la función Lambda a la VPC donde hayas creado la base de datos de RDS:
@@ -203,6 +198,10 @@ Verás que el código se descarga a una *carpeta temporal de tu equipo* y que di
 [[./imagenes/06-vscode-2.png]]
 
 Si lo deseas, puedes hacer algún pequeño cambio (en algún log) para ver cómo se actualizan los cambios a la función lambda.
+
+** Modificación del handler de la función
+Como puedes ver, el nombre del fichero que se proporciona es ~lambda.py~. Por ello, debemos modificar la configuración de la función Lambda para que haga referencia a dicho nombre. Esta tarea se realiza *modificando el nombre del handler*:
+[[./imagenes/08-handler.png]]
 
 ** Creación de variables de entorno
 Modifica la configuración de la función lambda para añadir las siguientes *variables de entorno* con los valores correspondientes a la configuración de la *base de datos y el proxy RDS*:
