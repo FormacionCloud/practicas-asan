@@ -1,0 +1,76 @@
+* Rekognition
+#+begin_quote
+[!IMPORTANT]
+Utilizaremos la *Landing Zone* para realizar esta práctica.
+#+end_quote
+
+Los objetivos de esta práctica son los siguientes:
+- Conocer el servicio Rekognition
+- Implementar aplicaciones serverless basadas en eventos
+- Crear código en funciones Lambda que accedan a servicios serverless proporcionados por AWS
+
+* Diagrama de la arquitectura
+El diagrama de arquitectura es el siguiente:
+#+begin_src plantuml :file ./imagenes/00-arquitectura.png :exports results
+  @startuml VPC
+  !define AWSPuml https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v19.0/dist
+  !include AWSPuml/AWSCommon.puml
+  !include AWSPuml/AWSSimplified.puml
+  !include AWSPuml/Compute/LambdaLambdaFunction.puml
+  !include AWSPuml/Database/DynamoDB.puml
+  !include AWSPuml/Groups/Generic.puml
+  !include AWSPuml/ArtificialIntelligence/RekognitionImage.puml
+  !include AWSPuml/Storage/SimpleStorageServiceBucket.puml
+
+  left to right direction
+
+  LambdaLambdaFunction(lambda, "Función lambda", "")
+  DynamoDB(dynamodb, "BD", "")
+  RekognitionImage(rekognition, "Rekognition", "")
+  SimpleStorageServiceBucket(bucket, "S3 bucket", "")
+
+  bucket -[dashed]-> lambda : "Notificación"
+  bucket <-- lambda : "Descarga\ndel objeto"
+  lambda --> rekognition
+  lambda --> dynamodb
+
+  @enduml
+#+end_src
+
+#+RESULTS:
+[[file:./imagenes/00-arquitectura.png]]
+
+* Creación de la función Lambda a partir del blueprint
+
+* Ejecución y pruebas básicas: ~DetectFaces~
+
+* Modificación del código: ~DetectLabels~
+** Creación de la tabla de DynamoDB
+
+** Actualización de permisos del rol de ejecución de la función Lambda
+
+** Modificación del código de la función
+
+** Pruebas de ejecución y comprobación del funcionamiento
+
+* Modificación del código: ~IndexFaces~
+** Creación de la colección
+Ejecutar el siguiente comando desde *CloudShell*:
+#+begin_src bash
+  aws rekognition create-collection --collection-id micoleccion-misiniciales
+#+end_src
+
+** Modificación del código de la función
+
+** Pruebas de ejecución y comprobación del funcionamiento
+
+* Entrega
+Documenta la realización de la práctica explicando los pasos seguidos. Incluye las *capturas de pantalla* necesarias. Recuerda mostrar tus datos personales (nombre y apellidos, iniciales) en aquellos apartados donde se indique.
+
+* Limpieza
+Puedes eliminar la colección de Rekognition con el siguiente comando desde *CloudShell*:
+#+begin_src bash
+  aws rekognition delete-collection --collection-id micoleccion-misiniciales
+#+end_src
+
+La función lambda no es necesario que la elimines, dado que no tiene coste a no ser que se supere el millón de ejecuciones.
