@@ -209,13 +209,19 @@ Para terminar, *sube una nueva foto de la misma persona* y comprueba en los logs
 Adicionalmente, si lo deseas, prueba a subir una foto donde no aparezca la persona registrada y comprueba que no se detecta ningún usuario:
 [[./imagenes/25-indexfaces.png]]
 
+#+begin_quote
+[!NOTE]
+También puedes crear más usuarios, indexar más caras y probar a detectarlos.
+[[./imagenes/26-indexfaces.png]]
+#+end_quote
+
 * Entrega
 Documenta la realización de la práctica explicando los pasos seguidos. Incluye las *capturas de pantalla* necesarias. Recuerda mostrar tus datos personales (nombre y apellidos, iniciales) en aquellos apartados donde se indique.
 
 * Limpieza
 Puedes eliminar la colección de Rekognition con el siguiente comando desde *CloudShell*:
 #+begin_src bash
-  aws rekognition delete-collection --collection-id micoleccion-misiniciales
+  aws rekognition delete-collection --collection-id micoleccion-MIS_INICIALES
 #+end_src
 
 La función lambda no es necesario que la elimines, dado que no tiene coste a no ser que se supere el millón de ejecuciones.
