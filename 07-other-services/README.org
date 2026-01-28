@@ -1,7 +1,7 @@
 * Rekognition
 #+begin_quote
 [!IMPORTANT]
-Utilizaremos la *Landing Zone* para realizar esta práctica.
+Utilizaremos la *Landing Zone* en la región ~us-east-1~ para realizar esta práctica.
 #+end_quote
 
 Los objetivos de esta práctica son los siguientes:
@@ -40,29 +40,174 @@ El diagrama de arquitectura es el siguiente:
 #+RESULTS:
 [[file:./imagenes/00-arquitectura.png]]
 
+* Creación de un bucket en S3
+Crea un bucket en S3 con el nombre ~rekog-bucket-MIS_INICIALES-FECHA_ACTUAL~, sustituyendo ~MIS_INICIALES~ y ~FECHA_ACTUAL~ por los datos reales. Puedes dejar la configuración por defecto. Crea en su interior una carpeta vacía con el nombre ~orig~.
+
 * Creación de la función Lambda a partir del blueprint
+Accede al servicio Lambda y crea una nueva función a partir del blueprint /Use Rekognition to detect faces/:
+[[./imagenes/01-lambda.png]]
+
+En el apartado *S3 trigger*, configura la detección de eventos ~PUT~ en los objetos creados en la ruta ~/orig~ en el bucket que has creado en el paso anterior:
+[[./imagenes/02-lambda.png]]
+
+** Revisión y corrección de la infraestructura creada
+Si el paso anterior se completa con éxito, no será necesario realizar ningún cambio en este apartado, únicamente comprobar que todo está bien. No obstante, es posible que recibas este error:
+[[./imagenes/03-lambda.png]]
+
+En primer lugar, habrá que comprobar que se ha creado el evento correspondiente en S3. Para ello, accedemos a la *consola de S3* y a continuación accedemos a la sección *Properties* del *bucket* creado:
+[[./imagenes/04-lambda.png]]
+
+Seguidamente, comprobamos la sección *Event notifications*. Si no se ha configurado automáticamente el *evento*, deberemos crearlo:
+[[./imagenes/05-lambda.png]]
+
+[[./imagenes/06-lambda.png]]
+
+[[./imagenes/07-lambda.png]]
+
+De vuelta en la *consola de Lambda*, comprobamos que se ha añadido el *disparador de S3* y que se ha configurado correctamente el rol:
+[[./imagenes/08-lambda.png]]
+
+Más abajo, comprobamos que la *política de recurso* de la función permite que *S3 pueda activar la ejecución de la función*:
+[[./imagenes/09-lambda.png]]
 
 * Ejecución y pruebas básicas: ~DetectFaces~
+Una vez creada la función y comprobada su correcta configuración para que pueda ser activada desde S3, podemos echar un vistazo al código y testear el funcionamiento. Si observas el *código de la función*, comprobarás que el handler está diseñado para realizar *3 tareas*, pero que *solo una de ellas está activa* (las otras dos están comentadas):
+[[./imagenes/10-detectfaces.png]]
+
+Esta tarea ejecuta la función ~detect_faces~, que está definida más arriba. Dicha función se encarga de interactuar con el servicio *Rekognition* para que acceda a la imagen subida a S3 y *detecte si la imagen incluye una cara*. En caso afirmativo, devolverá información sobre las *caras detectadas*, así como las *coordenadas de la imagen* donde aparecen dichas caras:
+[[./imagenes/11-detectfaces.png]]
+
+Para probar el funcionamiento, subiremos una imagen a la carpeta ~orig~ del bucket S3:
+[[./imagenes/12-detectfaces.png]]
+
+Elige una imagen de tu elección en la que aparezca la cara de una persona. A continuación, accede a los *logs de ejecución de la función*:
+[[./imagenes/13-detectfaces.png]]
+
+Observa que se detectan los datos de la cara:
+[[./imagenes/14-detectfaces.png]]
+
+#+begin_quote
+[!NOTE]
+Es posible que aparezcan algunos logs con errores aparte del log correcto. Puedes ignorarlos.
+#+end_quote
+
+Como puedes ver, Rekognition se encarga de detectar las caras que aparecen y mostrar las coordenadas de las regiones para identificarlas. Como ampliación, prueba a subir una imagen en la que *no aparezca la cara* de ninguna persona, o alguna imagen donde aparezca *más de una cara*.
 
 * Modificación del código: ~DetectLabels~
+A continuación, modificaremos el código de la función para ejecutar la función ~detect_labels~. Esta función llamará de nuevo a Rekognition para que analice la imagen y devuelva un *conjunto de etiquetas* que describan el *contenido de la imagen*. Para ello, el código de la función realiza las siguientes tareas:
+- Obtiene la información de la imagen en S3
+- Interactúa con Rekognition para indicarle que analice las etiquetas de dicha imagen
+- Opcionalmente, guarda el listado de etiquetas en una tabla de DynamoDB.
+
+Para que funcione esa sección del código realizaremos los siguientes cambios.
+
 ** Creación de la tabla de DynamoDB
+En primer lugar, crearemos una tabla en DynamoDB con una *clave de partición* denominada ~PK~. El resto de ajustes los dejaremos por defecto. *Anota el nombre de la tabla* creada.
 
 ** Actualización de permisos del rol de ejecución de la función Lambda
+Para que el código de la función pueda interactuar con la tabla de DynamoDB, será necesario *modificar los permisos del rol de ejecución* de la función Lambda. Para ello, accede a IAM, localiza el rol correspondiente y añade los permisos necesarios. *Haz una captura de pantalla* de la política que has utilizado.
+#+begin_quote
+[!IMPORTANT]
+Aplica el principio del *mínimo privilegio*: los permisos deben ser los necesarios para escribir en la tabla correspondiente.
+#+end_quote
 
 ** Modificación del código de la función
+*Quita los comentarios* de la función ~detect_labels~ de las líneas indicadas a continuación y *sustituye el nombre de la tabla* por el nombre de la tabla que hayas creado:
+[[./imagenes/15-detectlabels.png]]
+
+#+begin_quote
+[!IMPORTANT]
+Presta mucho cuidado con la *indentación* (tabuladores), ya que el código está escrito en *Python*.
+#+end_quote
+
+#+begin_quote
+[!NOTE]
+En este caso, por simplicidad, el nombre de la tabla se incluye en el código de la función. Sin embargo, en un *entorno real* que siga *buenas prácticas*, dicho valor debería estar almacenado en una *variable de entorno*. ¿Sabrías hacer los cambios necesarios para ello?
+#+end_quote
+
+Por último, *descomenta la llamada a la función* ~detect_labels~ del código del manejador:
+[[./imagenes/16-detectlabels.png]]
+
+Para terminar, *despliega el nuevo código*:
+[[./imagenes/17-detectlabels.png]]
 
 ** Pruebas de ejecución y comprobación del funcionamiento
+Sube una segunda imagen a la carpeta ~orig~ del bucket y analiza los logs de ejecución para ver si todo ha funcionado correctamente. A continuación, accede a la *tabla de DynamoDB* y comprueba si se ha creado el registro correspondiente con las etiquetas detectadas en la imagen:
+[[./imagenes/18-detectlabels.png]]
+
+Si accedes al detalle de un registro podrás ver las *etiquetas detectadas* junto con el *intervalo de confianza*:
+[[./imagenes/19-detectlabels.png]]
 
 * Modificación del código: ~IndexFaces~
+A continuación, modificaremos el código de la función para ejecutar la función ~index_faces~. Esta función llamará de nuevo a Rekognition para que *añada la imagen subida* a un *índice* que pueda ser utilizado luego para *buscar similitudes*. Así, es posible crear una especie de *base de datos de caras* y a continuación *detectar* si en una imagen aparece alguna de las caras de las *personas registradas* en dicha base de datos.
+
+Para que funcione esa sección del código realizaremos los siguientes cambios.
+
 ** Creación de la colección
-Ejecutar el siguiente comando desde *CloudShell*:
+En primer lugar, crearemos una *colección de caras* en Rekognition. Esta acción la realizaremos desde *CloudShell*, sustituyendo como siempre ~MIS_INICIALES~ por los datos reales:
 #+begin_src bash
-  aws rekognition create-collection --collection-id micoleccion-misiniciales
+  aws rekognition create-collection --collection-id micoleccion-MIS_INICIALES
 #+end_src
 
 ** Modificación del código de la función
+A continuación, modificaremos el código de la función para que las imágenes que subamos se den de alta en la *colección* creada. Para ello, será necesario modificar el nombre de la colección en la función ~index_faces~:
+[[./imagenes/20-indexfaces.png]]
+
+#+begin_quote
+[!IMPORTANT]
+No descomentes la línea indicada, ya que esa acción la hemos realizado desde la CLI en CloudShell anteriormente. Además, es una acción que solo se debe realizar una vez.
+#+end_quote
+
+Por último, *descomenta la llamada a la función* ~index_faces~ del código del manejador y *despliega el código* actualizado:
+[[./imagenes/21-indexfaces.png]]
 
 ** Pruebas de ejecución y comprobación del funcionamiento
+Para realizar las pruebas, subiremos *3 imágenes diferentes* en las que aparezca *una sola cara de la misma persona*. Podemos subir 3 fotos nuestras, por ejemplo, pero con la precaución de que no aparezca nadie más (por simplicidad).
+
+Una vez subidas, si todo ha ido bien, veremos que la colección incluye 3 caras. Para ello, desde *CloudShell* ejecutaremos:
+#+begin_src bash
+  aws rekognition list-faces --collection-id micoleccion-MIS_INICIALES
+#+end_src
+
+En la salida del comando podremos ver los ~FaceId~ de cada cara detectada:
+[[./imagenes/22-indexfaces.png]]
+
+A continuación, asociaremos un *usuario* a esas 3 caras. Rekognition permite asociar diferentes caras a diferentes usuarios para luego detectarlos. Desde *CloudShell*, ejecuta en primer lugar este comando para *crear el usuario* dentro de la colección, sustituyendo los valores por valores reales:
+#+begin_src bash
+  aws rekognition create-user --collection-id micoleccion-MIS_INICIALES --user-id MI_USUARIO
+#+end_src
+
+Después, *asociaremos las caras* creadas antes al usuario. Para ello, reemplaza los ~FaceId~ que se indican por los valores de los campos ~FaceId~ obtenidos mediante el comando ~list-faces~ ejecutado anteriormente:
+#+begin_src bash
+  aws rekognition associate-faces --collection-id micoleccion-MIS_INICIALES --user-id MI_USUARIO --face-ids '["FaceId-1", "FaceId-2", "FaceId-3"]'
+#+end_src
+
+#+begin_quote
+[!NOTE]
+Asegúrate de indicar los valores de los campos ~FaceId~, no los ~ImageId~.
+#+end_quote
+
+A continuación se muestra un resultado de ejecución de los comandos anteriores:
+[[./imagenes/23-indexfaces.png]]
+
+Por último, modificaremos el código de la función para que nos indique *qué usuario* es el que aparece en una *nueva foto* de la *misma persona*. Para ello utilizaremos la función ~SearchUsersByImage~ del SDK de Rekognition. En el handler de la función, *añade este código* (reemplazando los datos por valores reales) y *comenta* la llamada a la función ~index_faces~:
+#+begin_src python
+  response = rekognition.search_users_by_image(Image={"S3Object": {"Bucket": bucket, "Name": key}}, CollectionId="micoleccion-MIS_INICIALES")
+#+end_src
+El resultado debe quedar así (asegúrate de *comentar la línea indicada* además de añadir el código nuevo):
+[[./imagenes/27-indexfaces.png]]
+
+#+begin_quote
+[!IMPORTANT]
+Para que esta acción funcione, es necesario previamente *editar el rol de ejecución de la función* para conceder *permisos adicionales* de acceso a Rekognition. Para no complicarnos mucho, añadiremos la *política gestionada* ~AmazonRekognitionFullAccess~.
+[[./imagenes/26-indexfaces.png]]
+#+end_quote
+
+Para terminar, *sube una nueva foto de la misma persona* y comprueba en los logs que *detecta de qué usuario se trata*:
+[[./imagenes/24-indexfaces.png]]
+
+Adicionalmente, si lo deseas, prueba a subir una foto donde no aparezca la persona registrada y comprueba que no se detecta ningún usuario:
+[[./imagenes/25-indexfaces.png]]
 
 * Entrega
 Documenta la realización de la práctica explicando los pasos seguidos. Incluye las *capturas de pantalla* necesarias. Recuerda mostrar tus datos personales (nombre y apellidos, iniciales) en aquellos apartados donde se indique.
