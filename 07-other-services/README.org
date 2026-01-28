@@ -199,6 +199,11 @@ El resultado debe quedar así (asegúrate de *comentar la línea indicada* adem�
 
 #+begin_quote
 [!IMPORTANT]
+Al finalizar, no te olvides de *publicar los cambios de la función*.
+#+end_quote
+
+#+begin_quote
+[!IMPORTANT]
 Para que esta acción funcione, es necesario previamente *editar el rol de ejecución de la función* para conceder *permisos adicionales* de acceso a Rekognition. Para no complicarnos mucho, añadiremos la *política gestionada* ~AmazonRekognitionFullAccess~.
 [[./imagenes/26-indexfaces.png]]
 #+end_quote
