@@ -208,7 +208,7 @@ Para que esta acción funcione, es necesario previamente *editar el rol de ejecu
 [[./imagenes/26-indexfaces.png]]
 #+end_quote
 
-Para terminar, *sube una nueva foto de la misma persona* y comprueba en los logs que *detecta de qué usuario se trata*:
+Para terminar, *sube una nueva foto de la misma persona* (distinta de las fotos utilizadas anteriormente) y comprueba en los logs que *detecta de qué usuario se trata*:
 [[./imagenes/24-indexfaces.png]]
 
 Adicionalmente, si lo deseas, prueba a subir una foto donde no aparezca la persona registrada y comprueba que no se detecta ningún usuario:
@@ -217,7 +217,6 @@ Adicionalmente, si lo deseas, prueba a subir una foto donde no aparezca la perso
 #+begin_quote
 [!NOTE]
 También puedes crear más usuarios, indexar más caras y probar a detectarlos.
-[[./imagenes/26-indexfaces.png]]
 #+end_quote
 
 * Entrega
