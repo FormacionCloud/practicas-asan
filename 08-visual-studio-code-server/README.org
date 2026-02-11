@@ -1,0 +1,245 @@
+* Creación de un IDE cloud
+#+begin_quote
+[!IMPORTANT]
+Utilizaremos la *Landing Zone* en la región ~us-east-1~ para realizar esta práctica.
+#+end_quote
+
+Los objetivos de esta práctica son los siguientes:
+- Proporcionar acceso a entornos de desarrollo de software a través del navegador web
+- Conocer las ventajas de los entornos de desarrollo en la nube
+- Desplegar un entorno de Visual Studio Code para que ofrezca acceso remoto a través de Internet
+- Automatizar el proceso de creación del IDE cloude mediante Infraestructura como Código
+
+* Desarrollo de la práctica
+** Implementación manual
+En primer lugar, veremos cómo instalar *Visual Studio Code Server* en una instancia de EC2 de manera manual. El diagrama de la *arquitectura* será el siguiente:
+
+#+begin_src plantuml :file ./imagenes/00-arquitectura_1.png :exports results
+  @startuml VPC
+  !define AWSPuml https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v19.0/dist
+  !include AWSPuml/AWSCommon.puml
+  !include AWSPuml/AWSSimplified.puml
+  !include AWSPuml/NetworkingContentDelivery/CloudFront.puml
+  !include AWSPuml/General/Client.puml
+  !include AWSPuml/Compute/EC2Instance.puml
+  !include AWSPuml/Groups/SecurityGroup.puml
+  !include AWSPuml/Groups/VPC.puml
+  !include AWSPuml/Groups/PublicSubnet.puml
+  !include AWSPuml/Groups/Generic.puml
+  !include AWSPuml/ManagementGovernance/CloudFormationTemplate.puml
+  !include AWSPuml/ManagementGovernance/CloudFormationStack.puml
+
+  left to right direction
+  skinparam linetype ortho
+
+  Client(cliente, "Cliente", "")
+
+  VPCGroup(vpc, "VPC") {
+    PublicSubnetGroup(subred, "Subred pública") {
+      SecurityGroupGroup(gruposeguridad, "Security Group") {
+        EC2Instance(instancia, "Instancia", "")
+      }
+    }
+  }
+
+  cliente ---> instancia: "http : 8080"
+  @enduml
+#+end_src
+
+#+RESULTS:
+[[file:./imagenes/00-arquitectura_1.png]]
+
+Para ello, *lanza una instancia* en una *subred pública* de una VPC que tengas creada (o crea una nueva si lo necesitas). La configuración de la instancia será la siguiente:
+- ~t3.micro~
+- AMI *Ubuntu 24* (la versión más reciente)
+- Acceso con pareja de claves por SSH
+- *Grupo de seguridad* que permita el acceso desde *cualquier IP* a los puertos:
+  - ~SSH~
+  - ~8080~
+
+Una vez lanzada la instancia, *inicia sesión por SSH* y ejecuta el siguiente código para instalar Visual Studio Code Server:
+#+begin_src bash
+  curl -fsSL https://code-server.dev/install.sh | sh
+#+end_src
+
+El script anterior realiza la instalación de VS Code Server para el *usuario actual*, en nuestro caso, el usuario ~ubuntu~. Una vez instalado, es necesario *editar el fichero* ~/home/ubuntu/.config/code-server/config.yaml~. Puedes hacerlo mediante el editor *nano*, por ejemplo, mediante el comando siguiente:
+#+begin_src bash
+  nano ~/.config/code-server/config.yaml
+#+end_src
+
+Este fichero es el *fichero de configuración* de VS Code Server. Verás que está configurado para escuchar en la IP local únicamente: ~127.0.0.1~. Deberás *cambiar ese valor* para que escuche en cualquier IP de la máquina. Al final tiene que quedar así:
+
+#+begin_src yaml
+bind-addr: 0.0.0.0:8080
+auth: password
+password: 5142d23457c63545dd928530 # Tu password será distinto
+cert: false
+#+end_src
+
+Una vez realizado el cambio, *apunta el password* para poder iniciar sesión en el siguiente paso y *guarda los cambios en el fichero*.
+
+Por último, crearemos un *servicio* para que se ejecute VS Code Server siempre que se arranque la máquina virtual. Para ello, ejecuta este comando:
+
+#+begin_src bash
+  sudo systemctl enable --now code-server@ubuntu
+#+end_src
+
+El comando crea el servicio y lo *inicia* inmediatamente (opción ~--now~).
+
+Una vez finalizado este último paso, accede a la *IP o al DNS públicos* de la máquina virtual en el puerto ~8080~ mediante protocolo ~http~ y comprueba que puedes iniciar sesión en tu entorno mediante el password que apuntaste antes. 
+[[./imagenes/01-vscode-login.png]]
+
+#+begin_quote
+[!IMPORTANT]
+Recuerda acceder por ~http~ y no por ~https~.
+#+end_quote
+
+Una vez iniciada la sesión, verás que tienes acceso a un entorno de Visual Studio Code a través del navegador web. Puedes editar código, lanzar un terminal (los comandos se ejecutarán sobre la máquina EC2) y en definitiva, trabajar con proyectos de software. Todos los cambios que hagas se guardarán en el disco de la máquina EC2.
+
+** Implementación mediante infraestructura como código
+Una vez comprobada la instalación manual de un entorno de Visual Studio Code Server, optimizaremos el proceso de aprovisionamiento utilizando *Infraestructura como Código*. Uno de los problemas de la solución anterior, aparte del despliegue manual, es que el acceso se produce a través de ~http~, con los consiguientes *riesgos de seguridad* que ello implica. Para solucionarlo, añadiremos una red de entrega de contenido con *CloudFront*, que se encargará de proporcionar acceso ~https~ y enviar el tráfico a la instancia. El esquema de la solución propuesta es el siguiente:
+
+#+begin_src plantuml :file ./imagenes/00-arquitectura_2.png :exports results
+  @startuml VPC
+  !define AWSPuml https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v19.0/dist
+  !include AWSPuml/AWSCommon.puml
+  !include AWSPuml/AWSSimplified.puml
+  !include AWSPuml/NetworkingContentDelivery/CloudFront.puml
+  !include AWSPuml/General/Client.puml
+  !include AWSPuml/Compute/EC2Instance.puml
+  !include AWSPuml/Groups/SecurityGroup.puml
+  !include AWSPuml/Groups/VPC.puml
+  !include AWSPuml/Groups/PublicSubnet.puml
+  !include AWSPuml/Groups/Generic.puml
+  !include AWSPuml/ManagementGovernance/CloudFormationTemplate.puml
+  !include AWSPuml/ManagementGovernance/CloudFormationStack.puml
+  !include AWSPuml/SecurityIdentityCompliance/SecretsManager.puml
+
+  left to right direction
+  skinparam linetype ortho
+
+  Client(cliente, "Cliente", "")
+  CloudFormationTemplate(cloudformation, "CloudFormation", "")
+  SecretsManager(secretsmanager, "Secrets Manager", "")
+
+  GenericGroup(stack, "Stack") {
+    CloudFront(cloudfront, "CloudFront", "")
+    VPCGroup(vpc, "VPC") {
+      PublicSubnetGroup(subred, "Subred pública") {
+        SecurityGroupGroup(gruposeguridad, "Security Group") {
+          EC2Instance(instancia, "Instancia", "")
+        }
+      }
+    }
+  }
+
+  cliente ---> cloudfront : "https"
+  cloudfront ---> instancia: "http : 8080"
+  cloudformation -[dotted]--> stack
+  cloudformation <-[dotted]--> secretsmanager
+
+  @enduml
+#+end_src
+
+#+RESULTS:
+[[file:./imagenes/00-arquitectura_2.png]]
+
+Utilizaremos también *Secrets Manager* para generar el password de acceso a Visual Studio Code Server. De esta manera, podremos mostrarlo como salida generada por el comando de despliegue para poder obtenerlo de manera sencilla.
+
+Para implementar esta solución, podrás utilizar *cualquier tecnología* de Infraestructura como Código que hayamos visto en clase: *Terraform*, *CloudFormation* o *CDK*.
+
+*** Parámetros de la plantilla
+La plantilla de despliegue deberá incluir los siguientes *parámetros*:
+- *Tipo de instancia* - Por defecto, ~t3.small~
+- *Pareja de claves* - Para indicar la pareja de claves a utilizar en la conexión SSH a la instancia
+- *AMI* - Por defecto, hará referencia a la *última AMI de Ubuntu 24.04* publicada. Puedes hacer referencia al siguiente *parámetro público de Systems Manager*:
+  #+begin_src
+   /aws/service/canonical/ubuntu/server/24.04/stable/current/amd64/hvm/ebs-gp3/ami-id
+  #+end_src
+
+*** Recursos de la plantilla
+Los *recursos* que debes crear en la plantilla de despliegue serán los siguiente:
+- *VPC con subred pública* (incluye todos los recursos necesarios: Internet Gateway, tablas de enrutamiento, etc.)
+- *Instancia EC2* en subred pública, con *pareja de claves* y código *UserData*. El código *UserData* se proporciona en el archivo ~userdata.sh~ del repositorio. Recuerda que puedes incluirlo en la plantilla directamente. Por ejemplo, en CloudFormation podrías usar algo así:
+  #+begin_src yaml
+    Instance:
+      Type: AWS::EC2::Instance
+      Properties:
+        UserData:
+          Fn::Base64: !Sub |
+              #!/bin/bash
+              # Resto del código ...
+  #+end_src
+  #+begin_quote
+  [!IMPORTANT]
+  Observa que el código UserData incluye varios comentarios para explicar su funcionamiento. Presta especial atención a cómo obtiene el password creado por Secrets Manager para configurarlo en la instalación de Visual Studio Code Server.
+  #+end_quote
+- *Grupo de seguridad* abierto para *SSH* y puerto *8080*
+- *Secreto de SecretsManager* que genere automáticamente una clave. A continuación se propone un *ejemplo en CloudFormation*:
+  #+begin_src yaml
+    CodeServerPassword:
+      Type: AWS::SecretsManager::Secret
+      Properties:
+        GenerateSecretString:
+          PasswordLength: 16
+          ExcludeCharacters: '"@/\'
+  #+end_src
+- *Instance profile* (rol de ejecución) de la instancia que permita el *acceso a SecretsManager*. A continuación se propone de nuevo un *ejemplo en CloudFormation* que proporciona acceso a SSM (para conexión remota) y al *secreto creado* en el ejemplo anterior:
+  #+begin_src yaml
+    InstanceRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service: ec2.amazonaws.com
+              Action: sts:AssumeRole
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+        Policies:
+          - PolicyName: GetSecret
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action: secretsmanager:GetSecretValue
+                  Resource: !Ref CodeServerPassword
+
+    InstanceProfile:
+      Type: AWS::IAM::InstanceProfile
+      Properties:
+        Roles:
+          - !Ref InstanceRole
+  #+end_src
+- *Distribución Cloudfront*
+  - *Origin*
+    - *DNS público* de la instancia EC2
+    - Protocolo: *HTTP only*
+    - Puerto: *8080*
+  - *Cache Behaviour*
+    - *Redirect HTTP to HTTPS*
+    - All methods
+    - Caché: UseOriginCacheControlHeaders
+    - Origin request policy: AllViewer
+
+#+begin_quote
+[!NOTE]
+Puedes utilizar como base cualquier ejemplo o práctica que hayamos realizado en el módulo de Automatización y Despliegue. En la [[https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-template-resource-type-ref.html][referencia de plantilla de CloudFormation]] tienes todos los detalles de los diferentes servicios. También puedes (cómo no), utilizar IA para generar la plantilla. Asegúrate en este último caso que comprendes lo que está generando ;)
+#+end_quote
+
+*** Salidas de la plantilla
+Al desplegar el stack, se deberán mostrar las siguientes *salidas*:
+- *URL* de la distribución CloudFront para acceder al IDE
+- *Password* de acceso creado en Secrets Manager
+
+* Entrega
+Documenta la realización de la práctica explicando los pasos seguidos. Incluye las *capturas de pantalla* necesarias. Recuerda mostrar tus datos personales (nombre y apellidos, iniciales) en aquellos apartados donde se indique.
+
+*Incluye el código de la plantilla de Infraestructura como Código* en la memoria.
+
+* Limpieza
+Al finalizar, asegúrate de que:
+- *Destruyes la instancia* creada de manera manual
+- *Destruyes el stack* creado por el servicio de Infraestructura como Código
