@@ -84,7 +84,7 @@ Por último, habilitaremos el *servicio* creado por el script de instalación pa
   sudo systemctl enable --now code-server@ubuntu
 #+end_src
 
-El comando habilita el servicio y lo *inicia* inmediatamente (opción ~--now~).
+El comando *habilita* el servicio y lo *inicia* inmediatamente (opción ~--now~).
 
 Una vez finalizado este último paso, accede a la *IP o al DNS públicos* de la máquina virtual en el puerto ~8080~ mediante protocolo ~http~ y comprueba que puedes iniciar sesión en tu entorno mediante el password que apuntaste antes. 
 [[./imagenes/01-vscode-login.png]]
@@ -94,7 +94,7 @@ Una vez finalizado este último paso, accede a la *IP o al DNS públicos* de la 
 Recuerda acceder por ~http~ y no por ~https~.
 #+end_quote
 
-Una vez iniciada la sesión, verás que tienes acceso a un entorno de Visual Studio Code a través del navegador web. Puedes editar código, lanzar un terminal (los comandos se ejecutarán sobre la máquina EC2) y en definitiva, trabajar con proyectos de software. Todos los cambios que hagas se guardarán en el disco de la máquina EC2.
+Una vez iniciada la sesión, verás que tienes acceso a un entorno de Visual Studio Code a través del navegador web. Puedes editar código, lanzar un terminal (los comandos se ejecutarán sobre la máquina EC2) y, en definitiva, trabajar con proyectos de software. Todos los cambios que hagas se guardarán en el disco de la máquina EC2.
 
 ** Implementación mediante infraestructura como código
 Una vez comprobada la instalación manual de un entorno de Visual Studio Code Server, optimizaremos el proceso de aprovisionamiento utilizando *Infraestructura como Código*. Uno de los problemas de la solución anterior, aparte del despliegue manual, es que el acceso se produce a través de ~http~, con los consiguientes *riesgos de seguridad* que ello implica. Para solucionarlo, añadiremos una red de entrega de contenido con *CloudFront*, que se encargará de proporcionar acceso ~https~ y enviar el tráfico a la instancia. El esquema de la solución propuesta es el siguiente:
@@ -171,7 +171,7 @@ Los *recursos* que debes crear en la plantilla de despliegue serán los siguient
               # Resto del código ...
   #+end_src
   #+begin_quote
-  [!IMPORTANT]
+[!IMPORTANT]
   Observa que el código UserData incluye varios comentarios para explicar su funcionamiento. Presta especial atención a cómo obtiene el password creado por Secrets Manager para configurarlo en la instalación de Visual Studio Code Server.
   #+end_quote
 - *Grupo de seguridad* abierto para *SSH* y puerto *8080*
