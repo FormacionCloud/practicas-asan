@@ -84,7 +84,7 @@ Por último, habilitaremos el *servicio* creado por el script de instalación pa
   sudo systemctl enable --now code-server@ubuntu
 #+end_src
 
-El comando crea el servicio y lo *inicia* inmediatamente (opción ~--now~).
+El comando habilita el servicio y lo *inicia* inmediatamente (opción ~--now~).
 
 Una vez finalizado este último paso, accede a la *IP o al DNS públicos* de la máquina virtual en el puerto ~8080~ mediante protocolo ~http~ y comprueba que puedes iniciar sesión en tu entorno mediante el password que apuntaste antes. 
 [[./imagenes/01-vscode-login.png]]
