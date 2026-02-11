@@ -32,6 +32,8 @@ EOF
 chown -R ubuntu:ubuntu /home/ubuntu/.config
 
 # Crear fichero systemd de servicio, para que se inicie VS Code Server tras cada reinicio de la máquina
+# A diferencia del proceso de instalación por parte de un usuario normal, la instalación como root no crea el servicio automáticamente
+# Recuerda que el script UserData es ejecutado por el usuario root
 cat << EOF > /etc/systemd/system/code-server@.service
 [Unit]
 Description=code-server

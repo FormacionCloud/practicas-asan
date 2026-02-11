@@ -78,7 +78,7 @@ cert: false
 
 Una vez realizado el cambio, *apunta el password* para poder iniciar sesión en el siguiente paso y *guarda los cambios en el fichero*.
 
-Por último, crearemos un *servicio* para que se ejecute VS Code Server siempre que se arranque la máquina virtual. Para ello, ejecuta este comando:
+Por último, habilitaremos el *servicio* creado por el script de instalación para que se ejecute VS Code Server siempre que se arranque la máquina virtual. Para ello, ejecuta este comando:
 
 #+begin_src bash
   sudo systemctl enable --now code-server@ubuntu
