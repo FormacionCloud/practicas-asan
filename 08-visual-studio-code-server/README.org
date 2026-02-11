@@ -170,7 +170,7 @@ Los *recursos* que debes crear en la plantilla de despliegue serán los siguient
               #!/bin/bash
               # Resto del código ...
   #+end_src
-  Observa que el código UserData incluye varios comentarios para explicar su funcionamiento. Presta especial atención a cómo obtiene el password creado por Secrets Manager para configurarlo en la instalación de Visual Studio Code Server.
+  *Observa* que el código UserData incluye varios comentarios para explicar su funcionamiento. Presta especial atención a *cómo obtiene el password* creado por Secrets Manager para configurarlo en la instalación de Visual Studio Code Server.
 - *Grupo de seguridad* abierto para *SSH* y puerto *8080*
 - *Secreto de SecretsManager* que genere automáticamente una clave. A continuación se propone un *ejemplo en CloudFormation*:
   #+begin_src yaml
