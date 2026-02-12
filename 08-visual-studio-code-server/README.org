@@ -12,7 +12,7 @@ Los objetivos de esta práctica son los siguientes:
 
 ** Referencias
 - [[https://code.visualstudio.com/docs/remote/vscode-server][Visual Studio Code Server]]
-- [[https://github.com/coder/code-server][Instalación de Visual Studio Code para acceder desde navegador]] 
+- [[https://github.com/coder/code-server][Instalación de Visual Studio Code Server para acceder desde navegador]] 
 
 * Desarrollo de la práctica
 ** Implementación manual
