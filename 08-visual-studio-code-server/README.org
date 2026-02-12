@@ -10,6 +10,10 @@ Los objetivos de esta práctica son los siguientes:
 - Desplegar un entorno de Visual Studio Code para que ofrezca acceso remoto a través de Internet
 - Automatizar el proceso de creación del IDE cloude mediante Infraestructura como Código
 
+** Referencias
+- [[https://code.visualstudio.com/docs/remote/vscode-server][Visual Studio Code Server]]
+- [[https://github.com/coder/code-server][Instalación de Visual Studio Code para acceder desde navegador]] 
+
 * Desarrollo de la práctica
 ** Implementación manual
 En primer lugar, veremos cómo instalar *Visual Studio Code Server* en una instancia de EC2 de manera manual. El diagrama de la *arquitectura* será el siguiente:
