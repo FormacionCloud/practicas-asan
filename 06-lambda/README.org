@@ -107,24 +107,35 @@ Este comando instala las dependencias del proyecto en el directorio actual. Si t
 
 A continuación, *inspecciona el código* del fichero ~lambda.py~. Observa que utiliza *variables de entorno* para obtener los *datos de conexión de la base de datos* a la que se va a conectar.
 
-Llega el momento de *probar el código*. Para ello, es necesario configurar *variables de entorno locales* antes de ejecutarlo. En *Windows*, ejecuta el siguiente código, *sustituyendo los valores por los datos de conexión de tu servidor MySQL*:
+Llega el momento de *probar el código*. Para ello, es necesario configurar *variables de entorno locales* antes de ejecutarlo, *sustituyendo los valores por los datos de conexión de tu servidor MySQL*. A continuación, será necesario lanzar el comando de ejecución.
+
+En *Windows CMD*, ejecuta el siguiente código:
 #+begin_src bash
   set DB_NAME=NOMBRE_BASE_DATOS
   set RDS_PROXY_HOST=localhost
   set USER_NAME=USUARIO_BASE_DATOS
   set PASSWORD=PASS_BASE_DATOS
+
+  python lambda.py "{\"CustID\": \"13339\", \"Name\": \"Mi Nombre y Apellido\"}"
 #+end_src
 
-O en *Linux* (o /Windows Subsystem for Linux/):
+Si estás en *Windows PowerShell*, ejecuta lo siguiente:
 #+begin_src bash
-  export DB_NAME=NOMBRE_BASE_DATOS
-  export RDS_PROXY_HOST=localhost
-  export USER_NAME=USUARIO_BASE_DATOS
-  export PASSWORD=PASS_BASE_DATOS
+  $env:DB_NAME="NOMBRE_BASE_DATOS"
+  $env:RDS_PROXY_HOST="localhost"
+  $env:USER_NAME="USUARIO_BASE_DATOS"
+  $env:PASSWORD="PASS_BASE_DATOS"
+
+  python lambda.py '{\"CustID\": \"13339\", \"Name\": \"Mi Nombre y Apellido\"}'
 #+end_src
 
-A continuación, *ejecuta el siguiente* comando en un terminal de Visual Studio Code:
+Por último, si estás en *Linux*:
 #+begin_src bash
+  set DB_NAME=NOMBRE_BASE_DATOS
+  set RDS_PROXY_HOST=localhost
+  set USER_NAME=USUARIO_BASE_DATOS
+  set PASSWORD=PASS_BASE_DATOS
+
   python lambda.py '{"CustID": "13339", "Name": "Mi Nombre y Apellido"}'
 #+end_src
 
