@@ -62,6 +62,7 @@ El objetivo es controlar de manera independiente los accesos a dichas rutas para
 Para terminar, *comprueba el funcionamiento accediendo a estas URLs* (sustituyendo ~MIDISTRIBUCION~ por el nombre de tu distribución):
 - https://MIDISTRIBUCION.cloudfront.net (debe dar un error, porque no hemos establecido un objeto root por defecto)
 - https://MIDISTRIBUCION.cloudfront.net/carpeta1/ (de nuevo, debe dar un error, porque no hemos establecido un objeto root por defecto)
+- https://MIDISTRIBUCION.cloudfront.net/carpeta2 (de nuevo, debe dar un error, porque no hemos establecido un objeto root por defecto)
 - https://MIDISTRIBUCION.cloudfront.net/index.html
 - https://MIDISTRIBUCION.cloudfront.net/carpeta1/index.html
 - https://MIDISTRIBUCION.cloudfront.net/carpeta2/index.html
@@ -79,7 +80,9 @@ Esta función se utilizará en la distribución de caché *redirigir*. Su objeti
 
 Para crearla, utiliza el ejemplo que aparece en la documentación de [[https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/functions-tutorial.html#functions-tutorial-create][CloudFront Functions]].
 
-Una vez creada, comprueba su funcionamiento: accede a varias rutas que comiencen por ~/redirigir~ en tu distribución, como https://MIDISTRIBUCION.cloudfront.net/redirigir/prueba o https://MIDISTRIBUCION.cloudfront.net/redirigir/otraprueba y comprueba que se redirigen al sitio esperado.
+Una vez creada, comprueba su funcionamiento. Accede a varias rutas que comiencen por ~/redirigir~ en tu distribución y comprueba que se redirigen al sitio esperado:
+- https://MIDISTRIBUCION.cloudfront.net/redirigir/prueba
+- https://MIDISTRIBUCION.cloudfront.net/redirigir/otraprueba
 
 *** Función ~addIndex~
 Esta función se utilizará en la distribución de caché *por defecto*. Su objetivo es *añadir* a las rutas que acaben en ~/~ la extensión ~index.html~, para que se carguen correctamente los archivos de índice al acceder a rutas que acaben en ~/~. A continuación tienes un ejemplo de código:
@@ -108,7 +111,10 @@ Esta función se utilizará en la distribución de caché *por defecto*. Su obje
   }
 #+end_src
 
-Una vez creada, comprueba su funcionamiento: accede a varias rutas del sitio estático, como https://MIDISTRIBUCION.cloudfront.net, https://MIDISTRIBUCION.cloudfront.net/carpeta1 o https://MIDISTRIBUCION.cloudfront.net/carpeta2/ y comprueba que se carga correctamente el contenido.
+Una vez creada, comprueba su funcionamiento. Accede a varias rutas del sitio estático sin indicar el nombre del fichero y comprueba que se carga correctamente el contenido:
+- https://MIDISTRIBUCION.cloudfront.net
+- https://MIDISTRIBUCION.cloudfront.net/carpeta1
+- https://MIDISTRIBUCION.cloudfront.net/carpeta2/
 
 *** Función ~testAB~
 Esta función se utilizará en la distribución de caché *testAB*. Su objetivo es proporcionar *diferentes versiones* de un sitio web en función de una *cookie*. Esa cookie puede haber sido generada, por ejemplo, a partir de una preferencia de usuario. En caso de que la cookie no existiera, el sistema mostraría una versión aleatoria. A continuación tienes un ejemplo de código:
@@ -123,7 +129,7 @@ Esta función se utilizará en la distribución de caché *testAB*. Su objetivo 
   }
 #+end_src
 
-Una vez creada, comprueba su funcionamiento: accede varias veces a https://MIDISTRIBUCION.cloudfront.net/testAB/index.html y comprueba que se cargan diferentes versiones del sitio de manera aleatoria. Si utilizas Firefox, puedes modificar la petición para incluir el valor de la cookie en las herramientas de desarrollador (accesibles pulsando ~F12~), pestaña *Red*, pulsando con el botón derecho sobre la petición a la web y seleccionando "Editar y volver a enviar".
+Una vez creada, comprueba su funcionamiento: accede *varias veces* a https://MIDISTRIBUCION.cloudfront.net/testAB/index.html y comprueba que se cargan diferentes versiones del sitio de manera aleatoria. Si utilizas Firefox, puedes modificar la petición para incluir el valor de la cookie en las herramientas de desarrollador (accesibles pulsando ~F12~), pestaña *Red*, pulsando con el botón derecho sobre la petición a la web y seleccionando "Editar y volver a enviar".
 
 [[./imagenes/06-cloudfront.png]]
 
