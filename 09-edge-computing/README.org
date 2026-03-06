@@ -18,8 +18,9 @@ Los objetivos de esta práctica son los siguientes:
 Crea un bucket con un nombre que incluya tu *nombre y apellidos*. Almacena en su interior el *contenido* de la carpeta ~assets~ que se proporciona en el repositorio.
 #+begin_quote
 [!IMPORTANT]
-En la raíz del bucket deben aparecer *tres carpetas*:
-- ~sitioestatico~
+En la raíz del bucket deben aparecer *cuatro carpetas*, además de un fichero ~index.html~:
+- ~carpeta1~
+- ~carpeta2~
 - ~redirigir~
 - ~testAB~
 #+end_quote
@@ -33,10 +34,10 @@ Crea una distribución CloudFront de tipo *Pay as you go*.
 Si seleccionas algún otro tipo, como ~Free~, no podrás crear las funciones CloudFront de la práctica.
 #+end_quote
 
-Elige como origen el bucket S3 creado anteriormente. Ajusta el ~path~ para que acceda al contenido de la carpeta ~sitioestatico~ del bucket:
+Elige como origen el bucket S3 creado anteriormente:
 [[./imagenes/02-cloudfront.png]]
 
-Deja los ajustes por defecto para configurar los permisos y opciones de caché:
+Deja los *ajustes de origen por defecto* y configura las opciones de caché para utilizar la *política* ~CachingDisabled~ para desactivar la caché y no tener problemas con las pruebas.
 [[./imagenes/03-cloudfront.png]]
 
 Desactiva el WAF:
@@ -45,28 +46,22 @@ Desactiva el WAF:
 Acepta y crea la distribución. A continuación, *edita el origen* creado y sigue las instrucciones para *añadir los permisos adecuados al bucket S3* para que la distribución tenga acceso al bucket:
 [[./imagenes/05-cloudfront.png]]
 
-Acto seguido, *añade dos orígenes más* a la distribución. Ambos orígenes deben ir al *mismo bucket*, pero a *paths* diferentes. Deberás cambiar también el parámetro ~Name~ en uno de ellos para que tengan distinto nombre y no te dé un error al crear el segundo:
-- ~/redirigir~
-- ~/testAB~
-
-Utiliza los mismos *Origin Access Control Settings* que se han creado anteriormente con el primer origen:
-[[./imagenes/06-cloudfront.png]]
-
-Una vez creados los 3 orígenes, pasaremos a añadir *dos distribuciones de caché* adicionales. Lo que pretendemos es lo siguiente:
+Una vez creado el origen, pasaremos a añadir *dos distribuciones de caché* adicionales. Lo que pretendemos es lo siguiente:
 - Las peticiones a las rutas ~/redirigir/*~ se reenviarán a la carpeta ~redirigir~ del bucket
 - Las peticiones a las rutas ~/testAB/*~ se reenviarán a la carpeta ~testAB~ del bucket
-- Las peticiones por defecto se reenviarán a la carpeta ~sitioestatico~ del bucket
+- Las peticiones por defecto se reenviarán a la raíz del bucket
 
 Así:
-- Una petición a ~https://MIDISTRIBUCION.cloudfront.net/index.html~ se enviará a ~sitioestatico/index.html~
-- Una petición a ~https://MIDISTRIBUCION.cloudfront.net/carpeta1/index.html~ se enviará a ~sitioestatico/carpeta1/index.html~
+- Una petición a ~https://MIDISTRIBUCION.cloudfront.net/index.html~ se enviará a ~index.html~
+- Una petición a ~https://MIDISTRIBUCION.cloudfront.net/carpeta1/index.html~ se enviará a ~carpeta1/index.html~
 - Una petición a ~https://MIDISTRIBUCION.cloudfront.net/redirigir/prueba.txt~ se enviará a ~redirigir/prueba.txt~
 - Una petición a ~https://MIDISTRIBUCION.cloudfront.net/testAB/index.html~ se enviará a ~testAB/index.html~
 
-Por tanto, *crea dos distribuciones de caché* adicionales para las rutas ~/redirigir/*~ y ~/testAB/*~, que deberán enlazar con los orígenes correspondientes. Utiliza la *política de caché* ~CachingDisabled~ para desactivar la caché. Adjunta captura de pantalla de las opciones seleccionadas.
+El objetivo es controlar de manera independiente los accesos a dichas rutas para posteriormente modificarlas mediante funciones de CloudFront. Por tanto, *crea dos distribuciones de caché* adicionales para las rutas ~/redirigir/*~ y ~/testAB/*~, que deberán enlazar con el origen creado. Utiliza la *política de caché* ~CachingDisabled~ para desactivar la caché. Adjunta captura de pantalla de las opciones seleccionadas.
 
 Para terminar, *comprueba el funcionamiento accediendo a estas URLs* (sustituyendo ~MIDISTRIBUCION~ por el nombre de tu distribución):
 - https://MIDISTRIBUCION.cloudfront.net (debe dar un error, porque no hemos establecido un objeto root por defecto)
+- https://MIDISTRIBUCION.cloudfront.net/carpeta1/ (de nuevo, debe dar un error, porque no hemos establecido un objeto root por defecto)
 - https://MIDISTRIBUCION.cloudfront.net/index.html
 - https://MIDISTRIBUCION.cloudfront.net/carpeta1/index.html
 - https://MIDISTRIBUCION.cloudfront.net/carpeta2/index.html
@@ -122,15 +117,15 @@ Esta función se utilizará en la distribución de caché *testAB*. Su objetivo 
   function handler(event) {
     var request = event.request;
     var cookies = request.cookies;
-    if (!cookies.variant) {
-      var variant = Math.random() < 0.5 ? 'a' : 'b';
-      request.uri = '/testAB/variant-' + variant + request.uri;
-    }
+    var variant = cookies.variant ? cookies.variant.value : (Math.random() < 0.5 ? 'a' : 'b');
+    request.uri = request.uri.replace('/testAB/', '/testAB/variant-' + variant + '/');
     return request;
   }
 #+end_src
 
 Una vez creada, comprueba su funcionamiento: accede varias veces a https://MIDISTRIBUCION.cloudfront.net/testAB/index.html y comprueba que se cargan diferentes versiones del sitio de manera aleatoria. Si utilizas Firefox, puedes modificar la petición para incluir el valor de la cookie en las herramientas de desarrollador (accesibles pulsando ~F12~), pestaña *Red*, pulsando con el botón derecho sobre la petición a la web y seleccionando "Editar y volver a enviar".
+
+[[./imagenes/06-cloudfront.png]]
 
 * Entrega
 Documenta la realización de la práctica explicando los pasos seguidos. Incluye las *capturas de pantalla* necesarias. Recuerda mostrar tus datos personales (nombre y apellidos, iniciales) en aquellos apartados donde se indique.
