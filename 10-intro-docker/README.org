@@ -1,0 +1,38 @@
+* Introducción a Docker en AWS
+#+begin_quote
+[!IMPORTANT]
+Utilizaremos la *Landing Zone* en la región ~us-east-1~ para realizar esta práctica.
+#+end_quote
+
+Los objetivos de esta práctica son los siguientes:
+- Comprender los fundamentos básicos de Docker
+- Utilizar un IDE Cloud para crear, publicar y desplegar infraestructuras basadas en contenedores
+- Utilizar el servicio Elastic Container Registry (ECR) para almacenar imágenes de contenedores
+
+** Referencias
+- [[https://docker.awsworkshop.io/][Workshop Application Modernization with AWS and Docker]]
+- [[https://docs.docker.com/get-started/][Docker Get Started]] (doc oficial de Docker)
+- [[https://www.youtube.com/watch?v=5Fzhlk-6puM][Vídeotutorial - Introducción a Docker en AWS]]
+- [[https://github.com/aws-samples/Rent-A-Room][Repositorio Rent-A-Room]], con el código de la aplicación a utilizar
+
+* Desarrollo de la práctica
+** Despliegue del IDE cloud
+Utiliza la plantilla ~template.yaml~ de este repositorio para desplegar un IDE cloud basado en Visual Studio Code Server. Puedes utilizar también la plantilla que desarrollaste en la práctica correspondiente, si lo deseas. En ese caso, deberás instalar Docker manualmente o modificar el script ~user-data~ para que se instale automáticamente.
+
+#+begin_quote
+[!IMPORTANT]
+Si utilizas la plantilla que se proporciona en el repositorio, ten en cuenta que *no incluye VPC ni subredes*. Deberás disponer de una VPC con una *subred pública* en tu cuenta.
+#+end_quote
+
+** Creación y publicación de la imagen de contenedor
+Sigue las instrucciones del [[https://www.youtube.com/watch?v=5Fzhlk-6puM][videotutorial de introducción a Docker en AWS]] para *publicar* una imagen de contenedor de la aplicación de ejemplo en un repositorio del servicio *ECR* de tu cuenta en AWS.
+
+* Entrega
+Documenta la realización de la práctica explicando los pasos seguidos. Incluye las *capturas de pantalla* necesarias. Recuerda mostrar tus datos personales (nombre y apellidos, iniciales) en aquellos apartados donde se indique.
+
+* Limpieza
+Al finalizar, recuerda como mínimo *apagar la máquina EC2 con el IDE cloud* utilizado. Puedes dejarla así para reutilizarla en futuras prácticas. Incurrirás en un *coste mínimo* por el disco EBS, la IP elástica, la distribución CloudFront y el secreto.
+
+Si lo deseas, puedes también *eliminar el stack* de CloudFormation para eliminar completamente los recursos utilizados.
+
+No es necesario que elimines el repositorio ECR, ya que no tiene apenas coste.

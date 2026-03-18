@@ -1,0 +1,174 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: EC2 instance with code-server
+
+Parameters:
+  InstanceType:
+    Type: String
+    Default: t3.small
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: EC2 Key Pair
+  LatestAmiId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/canonical/ubuntu/server/24.04/stable/current/amd64/hvm/ebs-gp3/ami-id
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: VPC para la instancia y el grupo de seguridad
+  SubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Description: Subred para la instancia
+
+Resources:
+  CodeServerPassword:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      GenerateSecretString:
+        PasswordLength: 16
+        ExcludeCharacters: '"@/\'
+
+  InstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore # Session Manager
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser # ECR private registry
+        - arn:aws:iam::aws:policy/AmazonElasticContainerRegistryPublicPowerUser # ECR public registry
+      Policies:
+        - PolicyName: GetSecret
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: secretsmanager:GetSecretValue
+                Resource: !Ref CodeServerPassword
+
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref InstanceRole
+
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow code-server access
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+          CidrIp: 0.0.0.0/0
+
+  Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyName
+      ImageId: !Ref LatestAmiId
+      SubnetId: !Ref SubnetId
+      IamInstanceProfile: !Ref InstanceProfile
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: 30
+      SecurityGroupIds:
+        - !Ref SecurityGroup
+      UserData:
+        Fn::Base64: !Sub |
+            #!/bin/bash
+            export HOME=/root
+
+            # Install AWS CLI
+            apt-get update
+            apt-get install -y unzip curl
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            ./aws/install
+            rm -rf aws awscliv2.zip
+
+            # Install code-server
+            curl -fsSL https://code-server.dev/install.sh | sh
+
+            # Get password from Secrets Manager
+            PASSWORD=$(aws secretsmanager get-secret-value --secret-id ${CodeServerPassword} --query SecretString --output text --region ${AWS::Region})
+
+            # Configure code-server
+            mkdir -p /home/ubuntu/.config/code-server
+            cat << EOF > /home/ubuntu/.config/code-server/config.yaml
+            bind-addr: 0.0.0.0:8080
+            auth: password
+            password: $PASSWORD
+            cert: false
+            EOF
+
+            chown -R ubuntu:ubuntu /home/ubuntu/.config
+
+            # Create and enable systemd service
+            cat << EOF > /etc/systemd/system/code-server@.service
+            [Unit]
+            Description=code-server
+            After=network.target
+
+            [Service]
+            Type=exec
+            ExecStart=/usr/bin/code-server
+            Restart=always
+            User=%i
+
+            [Install]
+            WantedBy=default.target
+            EOF
+
+            systemctl daemon-reload
+            systemctl enable --now code-server@ubuntu
+
+            # Install docker
+            sudo apt-get -y install docker.io
+
+            # Add ubuntu user to docker group
+            sudo usermod -aG docker ubuntu
+            newgrp docker
+  ElasticIp:
+    Type: AWS::EC2::EIP
+    Properties:
+      InstanceId: !Ref Instance
+
+  CloudfrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    DependsOn: ElasticIp # Wait for Elastic IP to be available
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        DefaultCacheBehavior:
+          CachePolicyId: 83da9c7e-98b4-4e11-a168-04f0df8e2c65 # UseOriginCacheControlHeaders
+          OriginRequestPolicyId: 216adef6-5c7f-47e4-b989-5492eafa07d3 # AllViewer
+          TargetOriginId: EC2VsCode
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+            - POST
+            - PUT
+            - PATCH
+            - DELETE
+        Origins:
+          - Id: EC2VsCode
+            DomainName: !GetAtt Instance.PublicDnsName
+            CustomOriginConfig:
+              HTTPPort: 8080
+              OriginProtocolPolicy: http-only
+Outputs:
+  URL:
+    Value: !Sub 'https://${CloudfrontDistribution.DomainName}'
+  PasswordSecret:
+    Value: !Ref CodeServerPassword
+  GetPasswordCommand:
+    Value: !Sub 'aws secretsmanager get-secret-value --secret-id ${CodeServerPassword} --query SecretString --output text'
