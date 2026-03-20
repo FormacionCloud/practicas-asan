@@ -1,0 +1,45 @@
+* Orquestación de contenedores con ECS y Fargate
+#+begin_quote
+[!IMPORTANT]
+Utilizaremos la *Landing Zone* en la región ~us-east-1~ para realizar esta práctica.
+#+end_quote
+
+Los objetivos de esta práctica son los siguientes:
+- Desplegar aplicaciones basadas en contenedores
+- Utilizar el servicio Elastic Container Service (ECS) para desplegar aplicaciones basadas en contenedores
+- Utilizar el servicio *ECS Service Connect* para conectar y descubrir servicios en aplicaciones basadas en arquitecturas de microservicios
+
+** Referencias
+- [[https://docker.awsworkshop.io/][Workshop Application Modernization with AWS and Docker]]
+- [[https://www.youtube.com/watch?v=5Fzhlk-6puM][TODO - Vídeotutorial - Introducción a Docker en AWS]]
+- [[https://catalog.workshops.aws/ecs-immersion-day][Workshop Amazon ECS Immersion Day]]
+- [[https://www.youtube.com/watch?v=5Fzhlk-6puM][TODO - Vídeotutorial - Introducción a Docker en AWS]]
+
+* Desarrollo de la práctica
+** Finalización del workshop Application Modernization with AWS and Docker
+La primera parte de esta práctica tiene como objetivo *finalizar* el [[https://docker.awsworkshop.io/][Workshop Application Modernization with AWS and Docker]] que comenzamos en la práctica anterior. Para ello, sigue las instrucciones del TODO [[https://www.youtube.com/watch?v=5Fzhlk-6puM][videotutorial de introducción a Docker en AWS]] para *desplegar* la aplicación basada en la imagen de contenedor almacenada en el servicio *ECR* de tu cuenta en AWS.
+
+#+begin_quote
+[!NOTE]
+Puedes utilizar el IDE cloud basado en Visual Studio Code desplegado en la práctica anterior. Si lo eliminaste, utiliza la plantilla proporcionada en la práctica anterior para volver a desplegarlo.
+#+end_quote
+
+** Workshop Amazon ECS Immersion Day
+La segunda parte de esta práctica consistirá en completar la sección [[https://catalog.workshops.aws/ecs-immersion-day/en-US/40-lp-events][Learning Path - Multi-tier application architectures on Amazon ECS]] del [[https://catalog.workshops.aws/ecs-immersion-day][Workshop Amazon ECS Immersion Day]]. Para ello, sigue las instrucciones del TODO ENLACE_VIDEO.
+
+Deberás crear un conjunto de recursos tal como se indica en las [[https://catalog.workshops.aws/ecs-immersion-day/en-US/20-introduction/120-self-paced/100-cleanup][instrucciones del workshop]].
+#+begin_quote
+[!IMPORTANT]
+Este workshop utiliza recursos con un *importante coste asociado* (bases de datos, instancias, NAT gateways, certificados,...). Es importante que *despliegues la infraestructura únicamente cuando vayas a realizar la práctica*.
+
+*En ningún caso* dejes la infraestructura en *marcha más de un día entero*.
+#+end_quote
+
+* Entrega
+Documenta la realización de la práctica explicando los pasos seguidos. Incluye las *capturas de pantalla* necesarias. Recuerda mostrar tus datos personales (nombre y apellidos, iniciales) en aquellos apartados donde se indique.
+
+* Limpieza
+Deberás realizar *dos tareas de limpieza* en esta práctica:
+1. *Apagar la máquina EC2 con el IDE cloud* utilizado en la primera parte de la práctica. Puedes dejarla así para reutilizarla en futuras prácticas. Incurrirás en un *coste mínimo* por el disco EBS, la IP elástica, la distribución CloudFront y el secreto. Si lo deseas, puedes también *eliminar el stack* de CloudFormation para eliminar completamente los recursos utilizados.
+2. Completar las [[https://catalog.workshops.aws/ecs-immersion-day/en-US/20-introduction/120-self-paced/100-cleanup][tareas de limpieza]] que se indican para eliminar los recursos creados en el [[https://catalog.workshops.aws/ecs-immersion-day][Workshop Amazon ECS Immersion Day]].
+
