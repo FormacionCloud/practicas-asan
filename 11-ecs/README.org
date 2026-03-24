@@ -11,13 +11,13 @@ Los objetivos de esta práctica son los siguientes:
 
 ** Referencias
 - [[https://docker.awsworkshop.io/][Workshop Application Modernization with AWS and Docker]]
-- [[https://www.youtube.com/watch?v=5Fzhlk-6puM][TODO - Vídeotutorial - Introducción a Docker en AWS]]
+- [[https://youtu.be/YTm0Tbe0ehQ][Vídeotutorial - Workshop Application Modernization with AWS and Docker]]
 - [[https://catalog.workshops.aws/ecs-immersion-day][Workshop Amazon ECS Immersion Day]]
 - [[https://www.youtube.com/watch?v=5Fzhlk-6puM][TODO - Vídeotutorial - Introducción a Docker en AWS]]
 
 * Desarrollo de la práctica
 ** Finalización del workshop Application Modernization with AWS and Docker
-La primera parte de esta práctica tiene como objetivo *finalizar* el [[https://docker.awsworkshop.io/][Workshop Application Modernization with AWS and Docker]] que comenzamos en la práctica anterior. Para ello, sigue las instrucciones del TODO [[https://www.youtube.com/watch?v=5Fzhlk-6puM][videotutorial de introducción a Docker en AWS]] para *desplegar* la aplicación basada en la imagen de contenedor almacenada en el servicio *ECR* de tu cuenta en AWS.
+La primera parte de esta práctica tiene como objetivo *finalizar* el [[https://docker.awsworkshop.io/][Workshop Application Modernization with AWS and Docker]] que comenzamos en la práctica anterior. Para ello, sigue las instrucciones del [[https://youtu.be/YTm0Tbe0ehQ][videotutorial Workshop Application Modernization with AWS and Docker]] para *desplegar* la aplicación basada en la imagen de contenedor almacenada en el servicio *ECR* de tu cuenta en AWS.
 
 #+begin_quote
 [!NOTE]
