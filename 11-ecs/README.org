@@ -13,7 +13,7 @@ Los objetivos de esta práctica son los siguientes:
 - [[https://docker.awsworkshop.io/][Workshop Application Modernization with AWS and Docker]]
 - [[https://youtu.be/YTm0Tbe0ehQ][Vídeotutorial - Workshop Application Modernization with AWS and Docker]]
 - [[https://catalog.workshops.aws/ecs-immersion-day][Workshop Amazon ECS Immersion Day]]
-- [[https://www.youtube.com/watch?v=5Fzhlk-6puM][TODO - Vídeotutorial - Introducción a Docker en AWS]]
+- [[https://youtu.be/YGJ2VJ620S0][Vídeotutorial - Workshop Amazon ECS Immersion Day]]
 
 * Desarrollo de la práctica
 ** Finalización del workshop Application Modernization with AWS and Docker
@@ -25,7 +25,7 @@ Puedes utilizar el IDE cloud basado en Visual Studio Code desplegado en la prác
 #+end_quote
 
 ** Workshop Amazon ECS Immersion Day
-La segunda parte de esta práctica consistirá en completar la sección [[https://catalog.workshops.aws/ecs-immersion-day/en-US/40-lp-events][Learning Path - Multi-tier application architectures on Amazon ECS]] del [[https://catalog.workshops.aws/ecs-immersion-day][Workshop Amazon ECS Immersion Day]]. Para ello, sigue las instrucciones del TODO ENLACE_VIDEO.
+La segunda parte de esta práctica consistirá en completar la sección [[https://catalog.workshops.aws/ecs-immersion-day/en-US/40-lp-events][Learning Path - Multi-tier application architectures on Amazon ECS]] del [[https://catalog.workshops.aws/ecs-immersion-day][Workshop Amazon ECS Immersion Day]]. Para ello, sigue las instrucciones del [[https://youtu.be/YGJ2VJ620S0][videotutorial Workshop Amazon ECS Immersion Day]].
 
 Deberás crear un conjunto de recursos tal como se indica en las [[https://catalog.workshops.aws/ecs-immersion-day/en-US/20-introduction/120-self-paced/100-cleanup][instrucciones del workshop]].
 #+begin_quote
