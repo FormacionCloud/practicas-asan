@@ -22,6 +22,8 @@ Utiliza la plantilla ~template.yaml~ de este repositorio para desplegar un IDE c
 #+begin_quote
 [!IMPORTANT]
 Si utilizas la plantilla que se proporciona en el repositorio, ten en cuenta que *no incluye VPC ni subredes*. Deberás disponer de una VPC con una *subred pública* en tu cuenta.
+
+Ten en cuenta además, que la distribución CloudFront utiliza el nombre *DNS* de la instancia para establecer el origen. Por tanto, deberás tener *activada* la *asignación de nombres DNS a los hosts* en la VPC, así como la resolución DNS.
 #+end_quote
 
 ** Creación y publicación de la imagen de contenedor
