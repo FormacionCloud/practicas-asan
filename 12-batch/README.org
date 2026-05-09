@@ -147,11 +147,11 @@ Sube al bucket S3 el archivo ~numbers.json~ de la carpeta del repositorio. Guár
 
 ** Lanzamiento de trabajos
 Crea *dos trabajos* en el servicio AWS Batch con los siguientes ajustes:
-1. Nombre ~worker-TUS_INICIALES~
+1. Nombre ~worker-job-TUS_INICIALES~
    - Cola de trabajos = la cola creada en el apartado anterior
    - Definición de trabajo = ~worker~
    - Tamaño de array = 10
-2. Nombre ~aggregator-TUS_INICIALES~
+2. Nombre ~aggregator-job-TUS_INICIALES~
    - Cola de trabajos = la cola creada en el apartado anterior
    - Definición de trabajo = ~aggregator~
    - Dependencia = id del trabajo ~worker_TUS_INICIALES~ creado antes
